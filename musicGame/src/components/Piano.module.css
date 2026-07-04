@@ -1,0 +1,116 @@
+/* src/components/Piano.module.css */
+
+.pianoContainer {
+  position: relative;
+  width: 100%;
+  max-width: 900px; /* ограничим, чтобы не расползалось */
+  margin: 20px auto;
+  user-select: none;
+  border-radius: 12px;
+  background: #2c3e50; /* фон вокруг пианино */
+  padding: 10px 5px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.whiteKeys {
+  display: flex;
+  width: 100%;
+  height: 200px; /* фиксированная высота для пропорций */
+  position: relative;
+}
+
+.whiteKey {
+  flex: 1; /* каждая занимает равную долю */
+  height: 100%;
+  background: linear-gradient(to bottom, #f9f9f9 0%, #e0e0e0 100%);
+  border: 1px solid #aaa;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 
+    inset 0 -4px 6px rgba(0,0,0,0.2),
+    0 4px 8px rgba(0,0,0,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 12px;
+  transition: all 0.08s ease;
+  font-size: 1.2vw; /* адаптивный размер шрифта */
+  color: #333;
+  box-sizing: border-box;
+}
+
+.whiteKey:hover {
+  background: linear-gradient(to bottom, #ffffff 0%, #e8e8e8 100%);
+}
+
+.whiteKey.activeWhite {
+  background: linear-gradient(to bottom, #c0d8ff 0%, #8ab0f0 100%);
+  box-shadow: 
+    inset 0 4px 6px rgba(0,0,0,0.3),
+    0 0 4px rgba(0,0,0,0.2);
+  transform: translateY(2px); /* эффект нажатия */
+}
+
+.blackKeys {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.blackKey {
+  position: absolute;
+  top: 0;
+  height: 60%; /* чёрные короче белых */
+  background: linear-gradient(to bottom, #3a3a3a 0%, #1a1a1a 100%);
+  border: 1px solid #111;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 
+    inset 0 -4px 6px rgba(0,0,0,0.6),
+    0 4px 8px rgba(0,0,0,0.5);
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  transition: all 0.08s ease;
+  color: #fff;
+  font-size: 0.9vw;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.blackKey:hover {
+  background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a 100%);
+}
+
+.blackKey.activeBlack {
+  background: linear-gradient(to bottom, #6a8cff 0%, #3a5cbf 100%);
+  box-shadow: 
+    inset 0 4px 6px rgba(0,0,0,0.6),
+    0 0 4px rgba(0,0,0,0.3);
+  transform: translateY(2px);
+}
+
+/* Общие настройки для подписей */
+.noteLabel {
+  font-weight: bold;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  font-size: inherit;
+}
+
+/* Для белых клавиш подпись темнее */
+.whiteKey .noteLabel {
+  color: #333;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
+/* Для чёрных клавиш подпись светлая */
+.blackKey .noteLabel {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
