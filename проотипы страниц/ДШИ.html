@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>ДШИ с. Усть-Кишерть — Главная</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --primary: #7A5C9E;
+      --primary-light: #B393D3;
+      --primary-dark: #4F3470;
+      --accent: #E8A87C;
+      --accent-light: #F7DCC8;
+      --bg: #F9F6F0;
+      --text: #2D2D2D;
+      --text-light: #5E5E5E;
+      --white: #FFFFFF;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --radius: 18px;
+      --transition: 0.3s ease;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-top: 64px;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* Шапка */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 252, 248, 0.95);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      z-index: 1000;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 10px rgba(122, 92, 158, 0.3);
+    }
+    .burger {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .burger span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      background: var(--primary-dark);
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+    .burger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 6px); }
+    .burger.active span:nth-child(2) { opacity: 0; }
+    .burger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
+
+    .mobile-nav {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 252, 248, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 20px 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-120%);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 999;
+      border-bottom: 2px solid var(--accent-light);
+    }
+    .mobile-nav.open {
+      transform: translateY(0);
+    }
+    .mobile-nav a {
+      display: block;
+      padding: 12px 0;
+      font-weight: 500;
+      color: var(--text);
+      border-bottom: 1px solid #f0ebe4;
+      font-size: 1.05rem;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+
+    /* Герой */
+    .hero {
+      padding: 20px 0 32px;
+      background: linear-gradient(150deg, #F9F0E7 0%, #EDE0F0 100%);
+      border-radius: 0 0 40px 40px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      line-height: 1.2;
+      color: var(--primary-dark);
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+    .hero .typing {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--primary);
+      min-height: 2.4rem;
+      margin-bottom: 20px;
+    }
+    .hero .typing .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1.2rem;
+      background: var(--primary);
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 6px 20px rgba(122, 92, 158, 0.3);
+    }
+    .btn-primary:hover {
+      transform: scale(1.03);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-more {
+      display: inline-block;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      background: transparent;
+      transition: var(--transition);
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-more:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Секции */
+    section {
+      padding: 28px 0;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--primary-dark);
+    }
+    .section-sub {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    /* Важные разделы — карусель */
+    .quick-scroll {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding: 8px 4px 16px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .quick-scroll::-webkit-scrollbar { display: none; }
+    .quick-item {
+      flex: 0 0 130px;
+      scroll-snap-align: start;
+      background: white;
+      border-radius: var(--radius);
+      padding: 18px 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      border: 1px solid #f0ebe4;
+    }
+    .quick-item .icon { font-size: 2.4rem; display: block; margin-bottom: 6px; }
+    .quick-item .label { font-weight: 500; font-size: 0.85rem; }
+
+    /* БАННЕР ПОСТУПАЮЩИМ (вверху) */
+    .admission-banner {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 8px 24px rgba(122, 92, 158, 0.35);
+      margin: 0 0 20px 0;
+    }
+    .admission-banner .big-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .admission-banner h3 {
+      font-size: 1.6rem;
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 4px;
+    }
+    .admission-banner p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin-bottom: 16px;
+    }
+    .admission-banner .btn-white {
+      display: inline-block;
+      padding: 10px 32px;
+      border-radius: 40px;
+      background: white;
+      color: var(--primary-dark);
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .admission-banner .btn-white:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    /* О школе (кратко) */
+    .about-preview p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+    .stats-mini {
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-top: 12px;
+    }
+    .stats-mini .stat { text-align: center; }
+    .stats-mini .num { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+    .stats-mini .lbl { font-size: 0.8rem; color: var(--text-light); }
+
+    /* Отделения — сетка 2 */
+    .dir-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .dir-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      border: 1px solid #f0ebe4;
+    }
+    .dir-card .icon { font-size: 2.6rem; display: block; margin-bottom: 4px; }
+    .dir-card .name { font-weight: 500; font-size: 0.9rem; }
+
+    /* Преподаватели — горизонтальный скролл */
+    .teachers-scroll {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 8px 4px 16px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .teachers-scroll::-webkit-scrollbar { display: none; }
+    .teacher-card {
+      flex: 0 0 150px;
+      scroll-snap-align: start;
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      border: 1px solid #f0ebe4;
+      text-align: center;
+    }
+    .teacher-card .avatar {
+      height: 100px;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.8rem;
+      color: white;
+    }
+    .teacher-card .info { padding: 10px 8px 12px; }
+    .teacher-card .info h4 { font-size: 0.9rem; margin-bottom: 2px; }
+    .teacher-card .info .pos { font-size: 0.7rem; color: var(--text-light); }
+
+    /* НОВОСТИ С КАРТИНКАМИ */
+    .news-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .news-item {
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      border: 1px solid #f0ebe4;
+    }
+    .news-item .news-img {
+      height: 140px;
+      background: linear-gradient(145deg, var(--accent-light), var(--primary-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.6rem;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .news-item .news-body {
+      padding: 14px 16px 16px;
+    }
+    .news-item .date {
+      font-size: 0.75rem;
+      color: var(--text-light);
+    }
+    .news-item .title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 4px 0 6px;
+    }
+    .news-item .excerpt {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+    .news-footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* ГАЛЕРЕЯ — 6 превью */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .gallery-item {
+      aspect-ratio: 1/1;
+      background: linear-gradient(145deg, #e8e0f0, #d5cce0);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      color: var(--primary-dark);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .gallery-footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* Расписание — ссылка-заглушка */
+    .schedule-link {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      border: 1px solid #f0ebe4;
+    }
+    .schedule-link .icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .schedule-link .label {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--primary);
+    }
+    .schedule-link .hint {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    /* Поступающим (внизу — дублирующий блок, более спокойный) */
+    .admission-box {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+    .admission-box h3 {
+      font-size: 1.4rem;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+    .admission-box p {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    /* Контакты */
+    .contacts-block {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0ebe4;
+    }
+    .contact-row:last-child { border-bottom: none; }
+    .contact-row .emoji { font-size: 1.6rem; width: 36px; text-align: center; }
+    .contact-row .text { font-size: 0.95rem; color: var(--text); }
+    .contact-row .text a { color: var(--primary); font-weight: 500; }
+
+    /* Футер */
+    footer {
+      background: var(--primary-dark);
+      color: rgba(255,255,255,0.8);
+      padding: 24px 0;
+      text-align: center;
+      border-radius: 30px 30px 0 0;
+      margin-top: 20px;
+    }
+    footer .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 18px;
+      margin-bottom: 16px;
+    }
+    footer .footer-links a {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.7);
+      transition: var(--transition);
+    }
+    footer .footer-links a:hover { color: var(--accent); }
+    footer .socials {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+    }
+    footer .socials a { transition: var(--transition); }
+    footer .socials a:hover { transform: scale(1.1); color: var(--accent); }
+    footer p { font-size: 0.8rem; }
+
+    /* Анимация появления */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ШАПКА -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎨</div>
+      <span>ДШИ Усть-Кишерть</span>
+    </div>
+    <button class="burger" id="burgerBtn" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- МОБИЛЬНОЕ МЕНЮ -->
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="#about">О школе</a>
+    <a href="#directions">Отделения</a>
+    <a href="#teachers">Преподаватели</a>
+    <a href="#news">Новости</a>
+    <a href="#gallery">Галерея</a>
+    <a href="#schedule-link">Расписание</a>
+    <a href="#admission">Поступающим</a>
+    <a href="#contacts">Контакты</a>
+  </nav>
+
+  <!-- ГЕРОЙ -->
+  <section class="hero">
+    <div class="container">
+      <h1>Музыка и <span>искусство</span></h1>
+      <p class="subtitle">Детская школа искусств с. Усть-Кишерть</p>
+      <div class="typing" id="typingBlock">
+        <span id="typedText"></span><span class="cursor"></span>
+      </div>
+      <div class="btn-group">
+        <a href="#about" class="btn btn-primary">О школе</a>
+        <a href="#contacts" class="btn btn-outline">Контакты</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ВАЖНЫЕ РАЗДЕЛЫ (карусель) -->
+  <section style="padding: 0 0 8px 0;">
+    <div class="container">
+      <div class="quick-scroll">
+        <a href="#" class="quick-item"><span class="icon">📋</span><span class="label">Сведения об ОО</span></a>
+        <a href="#" class="quick-item"><span class="icon">⭐</span><span class="label">Оценка работы</span></a>
+        <a href="#" class="quick-item"><span class="icon">📅</span><span class="label">Расписание</span></a>
+        <a href="#" class="quick-item"><span class="icon">👪</span><span class="label">Родителям</span></a>
+        <a href="#" class="quick-item"><span class="icon">🖼️</span><span class="label">Галерея</span></a>
+        <a href="#" class="quick-item"><span class="icon">📰</span><span class="label">Новости</span></a>
+        <a href="#" class="quick-item"><span class="icon">🏆</span><span class="label">Конкурсы</span></a>
+        <a href="#" class="quick-item"><span class="icon">🧠</span><span class="label">Олимпиады</span></a>
+        <a href="#" class="quick-item"><span class="icon">🎯</span><span class="label">Отделения</span></a>
+        <a href="#" class="quick-item"><span class="icon">📝</span><span class="label">Поступающим</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- БАННЕР ПОСТУПАЮЩИМ (В САМОМ ВЕРХУ) -->
+  <section style="padding: 0 0 20px 0;">
+    <div class="container">
+      <div class="admission-banner">
+        <span class="big-icon">🎓</span>
+        <h3>Поступающим в ДШИ</h3>
+        <p>Приём на 2026–2027 учебный год уже открыт!<br>Принимаем детей с 7 лет.</p>
+        <a href="#" class="btn-white">Подробнее о поступлении →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- О ШКОЛЕ (кратко) -->
+  <section id="about" class="container fade-in" style="padding-top: 0;">
+    <h2 class="section-title">О школе</h2>
+    <div class="about-preview">
+      <p>Основана в 1975 году. Сегодня здесь занимаются более 800 детей по 7 направлениям. Мы гордимся нашими выпускниками и традициями.</p>
+      <div class="stats-mini">
+        <div class="stat"><div class="num" data-count="50">50</div><div class="lbl">лет</div></div>
+        <div class="stat"><div class="num" data-count="800">800</div><div class="lbl">учеников</div></div>
+        <div class="stat"><div class="num" data-count="24">24</div><div class="lbl">педагога</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ОТДЕЛЕНИЯ -->
+  <section id="directions" class="container fade-in">
+    <h2 class="section-title">Отделения</h2>
+    <p class="section-sub">Основные направления</p>
+    <div class="dir-grid">
+      <div class="dir-card"><span class="icon">🎹</span><span class="name">Фортепиано</span></div>
+      <div class="dir-card"><span class="icon">🎸</span><span class="name">Народные инструменты</span></div>
+      <div class="dir-card"><span class="icon">🎤</span><span class="name">Вокал и хор</span></div>
+      <div class="dir-card"><span class="icon">🎨</span><span class="name">ИЗО</span></div>
+      <div class="dir-card"><span class="icon">🧵</span><span class="name">ДПИ</span></div>
+      <div class="dir-card"><span class="icon">🎭</span><span class="name">Раннее развитие</span></div>
+    </div>
+  </section>
+
+  <!-- ПРЕПОДАВАТЕЛИ -->
+  <section id="teachers" style="background: #F5F0FA; padding: 28px 0;">
+    <div class="container fade-in">
+      <h2 class="section-title">Преподаватели</h2>
+      <p class="section-sub">Наши наставники</p>
+      <div class="teachers-scroll">
+        <div class="teacher-card">
+          <div class="avatar">👩‍🏫</div>
+          <div class="info"><h4>Екатерина Галюшина</h4><div class="pos">Директор</div></div>
+        </div>
+        <div class="teacher-card">
+          <div class="avatar">🎵</div>
+          <div class="info"><h4>Анна Петрова</h4><div class="pos">Фортепиано</div></div>
+        </div>
+        <div class="teacher-card">
+          <div class="avatar">🎨</div>
+          <div class="info"><h4>Елена Соколова</h4><div class="pos">ИЗО</div></div>
+        </div>
+        <div class="teacher-card">
+          <div class="avatar">🎭</div>
+          <div class="info"><h4>Дмитрий Орлов</h4><div class="pos">Театр</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- НОВОСТИ С КАРТИНКАМИ И КНОПКОЙ "ВСЕ НОВОСТИ" -->
+  <section id="news" class="container fade-in">
+    <h2 class="section-title">Новости</h2>
+    <div class="news-list">
+      <div class="news-item">
+        <div class="news-img">🏆</div>
+        <div class="news-body">
+          <div class="date">12 мая 2026</div>
+          <div class="title">Победа в конкурсе «Юный музыкант»</div>
+          <div class="excerpt">Анна Смирнова стала лауреатом I степени в номинации «Соло».</div>
+        </div>
+      </div>
+      <div class="news-item">
+        <div class="news-img">🖼️</div>
+        <div class="news-body">
+          <div class="date">5 мая 2026</div>
+          <div class="title">Открытие выставки работ ИЗО</div>
+          <div class="excerpt">В выставочном зале представлены более 50 работ учеников.</div>
+        </div>
+      </div>
+      <div class="news-item">
+        <div class="news-img">🎭</div>
+        <div class="news-body">
+          <div class="date">28 апреля 2026</div>
+          <div class="title">Спектакль «Маска»</div>
+          <div class="excerpt">Премьера по сказкам Прикамья прошла с аншлагом.</div>
+        </div>
+      </div>
+    </div>
+    <div class="news-footer">
+      <a href="#" class="btn-more">Все новости →</a>
+    </div>
+  </section>
+
+  <!-- ГАЛЕРЕЯ — 6 ПРЕВЬЮ И КНОПКА "ВСЕ ГАЛЕРЕИ" -->
+  <section id="gallery" style="background: #F5F0FA; padding: 28px 0;">
+    <div class="container fade-in">
+      <h2 class="section-title">Галерея</h2>
+      <p class="section-sub">Мероприятия и занятия</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">🎼</div>
+        <div class="gallery-item">🎹</div>
+        <div class="gallery-item">🩰</div>
+        <div class="gallery-item">🎨</div>
+        <div class="gallery-item">🎭</div>
+        <div class="gallery-item">📸</div>
+      </div>
+      <div class="gallery-footer">
+        <a href="#" class="btn-more">Все галереи →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- РАСПИСАНИЕ — ССЫЛКА-ЗАГЛУШКА -->
+  <section id="schedule-link" class="container fade-in">
+    <h2 class="section-title">Расписание</h2>
+    <p class="section-sub">Занятия по отделениям и классам</p>
+    <a href="#" class="schedule-link" style="display:block;">
+      <span class="icon">📅</span>
+      <div class="label">Смотреть расписание</div>
+      <div class="hint">Перейти на страницу с полным расписанием</div>
+    </a>
+  </section>
+
+  <!-- ПОСТУПАЮЩИМ (дублирующий блок внизу — спокойный) -->
+  <section id="admission" style="background: #F5F0FA; padding: 28px 0;">
+    <div class="container fade-in">
+      <h2 class="section-title">Поступающим</h2>
+      <div class="admission-box">
+        <h3>📋 Приём на 2026–2027</h3>
+        <p>Принимаем детей с 7 лет. Вступительные просмотры в июне и августе.</p>
+        <a href="#" class="btn btn-primary" style="font-size:0.9rem; padding:10px 24px;">Подробнее</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- КОНТАКТЫ -->
+  <section id="contacts" class="container fade-in">
+    <h2 class="section-title">Контакты</h2>
+    <div class="contacts-block">
+      <div class="contact-row"><span class="emoji">📍</span><span class="text">ул. Комсомольская, 2, с. Усть-Кишерть</span></div>
+      <div class="contact-row"><span class="emoji">📞</span><span class="text"><a href="tel:+73425221190">8 (34252) 2-11-90</a></span></div>
+      <div class="contact-row"><span class="emoji">✉️</span><span class="text"><a href="mailto:dshi-ukishert@yandex.ru">dshi-ukishert@yandex.ru</a></span></div>
+      <div class="contact-row"><span class="emoji">🌐</span><span class="text"><a href="http://dshi-uk.perm.muzkult.ru/" target="_blank">dshi-uk.perm.muzkult.ru</a></span></div>
+      <div class="contact-row"><span class="emoji">🕒</span><span class="text">Пн–Пт 9:00–20:00, Сб 10:00–16:00</span></div>
+    </div>
+  </section>
+
+  <!-- ФУТЕР -->
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="#">Сведения об ОО</a>
+        <a href="#">Оценка работы</a>
+        <a href="#">Расписание</a>
+        <a href="#">Родителям</a>
+        <a href="#">Поступающим</a>
+      </div>
+      <div class="socials">
+        <a href="#">📘</a>
+        <a href="#">📸</a>
+        <a href="#">🎥</a>
+        <a href="#">✈️</a>
+      </div>
+      <p>© 2026 МАУДО «ДШИ» с. Усть-Кишерть</p>
+    </div>
+  </footer>
+
+  <script>
+    // Бургер-меню
+    const burger = document.getElementById('burgerBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    burger.addEventListener('click', () => {
+      burger.classList.toggle('active');
+      mobileNav.classList.toggle('open');
+    });
+    document.querySelectorAll('.mobile-nav a').forEach(link => {
+      link.addEventListener('click', () => {
+        burger.classList.remove('active');
+        mobileNav.classList.remove('open');
+      });
+    });
+
+    // Печатающийся текст
+    const phrases = [
+      'Раскрываем таланты 🎵',
+      'Учим искусству 🎨',
+      'Вдохновляем на творчество 🌟'
+    ];
+    let idx = 0, ch = 0, isDel = false;
+    const el = document.getElementById('typedText');
+    function type() {
+      const cur = phrases[idx];
+      if (!isDel) {
+        el.textContent = cur.substring(0, ch + 1);
+        ch++;
+        if (ch === cur.length) { isDel = true; setTimeout(type, 2500); return; }
+        setTimeout(type, 70);
+      } else {
+        el.textContent = cur.substring(0, ch - 1);
+        ch--;
+        if (ch === 0) { isDel = false; idx = (idx + 1) % phrases.length; setTimeout(type, 400); return; }
+        setTimeout(type, 40);
+      }
+    }
+    type();
+
+    // Анимация чисел
+    const nums = document.querySelectorAll('.num');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.getAttribute('data-count'));
+          let current = 0;
+          const step = Math.ceil(target / 40);
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) { el.textContent = target; clearInterval(timer); }
+            else el.textContent = current;
+          }, 30);
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    nums.forEach(n => observer.observe(n));
+
+    // Появление при скролле
+    const faders = document.querySelectorAll('.fade-in');
+    const appear = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    faders.forEach(el => appear.observe(el));
+  </script>
+</body>
+</html>
