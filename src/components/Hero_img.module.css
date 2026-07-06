@@ -1,0 +1,99 @@
+.heroContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 20px;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 150px; /* размер картинки */
+  height: 150px;
+  flex-shrink: 0;
+}
+
+/* Круглая картинка */
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #2c3e50;
+}
+
+/* SVG – абсолютно поверх картинки, занимает ту же область */
+.arcSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* чтобы клики проходили на картинку, если надо */
+}
+
+/* Текст по дуге – настройки шрифта */
+.arcText {
+  font-family: 'Arial', sans-serif;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px rgba(255,255,255,0.8);
+}
+
+/* ----- Облако мысли (комикс) ----- */
+.cloud {
+  position: relative;
+  background: #ffffff;
+  border-radius: 50px;
+  padding: 15px 25px;
+  min-width: 60px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 2px solid #2c3e50;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-size: 2rem;
+  user-select: none;
+}
+
+.cloud:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.cloud:active {
+  transform: scale(0.95);
+}
+
+.cloudTail {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-right: 20px solid #ffffff;
+  filter: drop-shadow(-2px 0 2px rgba(0,0,0,0.1));
+}
+
+.cloudTail::after {
+  content: '';
+  position: absolute;
+  top: -17px;
+  left: 2px;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-right: 22px solid #2c3e50;
+  z-index: -1;
+}
+
+.cloudText {
+  font-size: 2.2rem;
+  line-height: 1;
+}
