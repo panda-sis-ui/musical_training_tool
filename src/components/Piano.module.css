@@ -43,13 +43,7 @@
   background: linear-gradient(to bottom, #ffffff 0%, #e8e8e8 100%);
 }
 
-.whiteKey.activeWhite {
-  background: linear-gradient(to bottom, #c0d8ff 0%, #8ab0f0 100%);
-  box-shadow: 
-    inset 0 4px 6px rgba(0,0,0,0.3),
-    0 0 4px rgba(0,0,0,0.2);
-  transform: translateY(2px); /* эффект нажатия */
-}
+
 
 .blackKeys {
   position: absolute;
@@ -87,6 +81,15 @@
   background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a 100%);
 }
 
+/* Активное состояние (синяя подсветка при нажатии) */
+.whiteKey.activeWhite {
+  background: linear-gradient(to bottom, #c0d8ff 0%, #8ab0f0 100%);
+  box-shadow: 
+    inset 0 4px 6px rgba(0,0,0,0.3),
+    0 0 4px rgba(0,0,0,0.2);
+  transform: translateY(2px);
+}
+
 .blackKey.activeBlack {
   background: linear-gradient(to bottom, #6a8cff 0%, #3a5cbf 100%);
   box-shadow: 
@@ -121,4 +124,67 @@
   color: #fff;
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
   font-size: clamp(12px, 1vw, 22px);
+}
+
+.whiteKey.correct {
+  background: #90EE90 !important; /* светло-зеленый */
+}
+.whiteKey.wrong {
+  background: #FF6B6B !important; /* светло-красный */
+}
+.blackKey.correct {
+  background: #2E8B57 !important; /* темно-зеленый */
+}
+.blackKey.wrong {
+  background: #B22222 !important; /* темно-красный */
+}
+
+
+.pianoContainer {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 10px auto;
+  user-select: none;
+  border-radius: 12px;
+  background: #2c3e50;
+  padding: 8px 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.whiteKeys {
+  display: flex;
+  width: 100%;
+  height: 200px; /* базовая высота */
+  position: relative;
+}
+
+/* Для мобильных устройств в ландшафтном режиме */
+@media (max-width: 768px) and (orientation: landscape) {
+  .whiteKeys {
+    height: 60vh; /* занимает 60% высоты экрана */
+    max-height: 300px;
+  }
+  .pianoContainer {
+    margin: 5px auto;
+    padding: 5px 3px;
+    border-radius: 8px;
+  }
+  .noteLabel {
+    font-size: clamp(12px, 1.5vw, 18px) !important;
+  }
+  .whiteKey .noteLabel {
+    font-size: clamp(14px, 2vw, 24px) !important;
+  }
+  .blackKey .noteLabel {
+    font-size: clamp(10px, 1.2vw, 16px) !important;
+  }
+}
+
+/* Для очень маленьких экранов (портрет) – можно не менять, но если телефон не повернут, то высота меньше */
+@media (max-width: 480px) and (orientation: portrait) {
+  .whiteKeys {
+    height: 30vh;
+    max-height: 150px;
+  }
 }

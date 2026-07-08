@@ -2,3 +2,8 @@ body{
   background: linear-gradient(#FFE8D6, #B8D8E3);
   height: 100vh;
 }
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}

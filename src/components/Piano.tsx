@@ -1,5 +1,5 @@
 // src/components/Piano.tsx
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import styles from './Piano.module.css';
 
 const NOTE_FREQUENCIES: Record<string, number> = {
@@ -12,6 +12,21 @@ const NOTE_FREQUENCIES: Record<string, number> = {
 
 const whiteKeys = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5'];
 const blackKeys = ['C#4', 'D#4', 'F#4', 'G#4', 'A#4', 'C#5', 'D#5'];
+
+const KEYBOARD_MAP: Record<string, string> = {
+  'a': 'C4',  'w': 'C#4',
+  's': 'D4',  'e': 'D#4',
+  'd': 'E4',
+  'f': 'F4',  't': 'F#4',
+  'g': 'G4',  'y': 'G#4',
+  'h': 'A4',  'u': 'A#4',
+  'j': 'B4',
+  'k': 'C5',  'o': 'C#5',
+  'l': 'D5',  'p': 'D#5',
+  ';': 'E5',
+};
+
+const MIN_DURATION = 100;
 
 const getRussianNoteName = (note: string): string => {
   const base = note.slice(0, -1);
@@ -27,69 +42,219 @@ const getRussianNoteName = (note: string): string => {
 
 interface PianoProps {
   onNotePlay?: (note: string, frequency: number) => void;
+  lastResult?: { note: string; isCorrect: boolean } | null;
 }
 
-export default function Piano({ onNotePlay }: PianoProps) {
+export default function Piano({ onNotePlay, lastResult }: PianoProps) {
   const [activeNote, setActiveNote] = useState<string | null>(null);
+  const [highlightedNote, setHighlightedNote] = useState<string | null>(null);
+  const [highlightColor, setHighlightColor] = useState<'green' | 'red' | null>(null);
 
-  const playSound = (note: string) => {
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const activeOscillatorRef = useRef<OscillatorNode | null>(null);
+  const activeGainRef = useRef<GainNode | null>(null);
+  const noteStartTimeRef = useRef<number>(0);
+  const stopTimeoutRef = useRef<number | null>(null);
+
+  const getAudioContext = useCallback(() => {
+    if (!audioCtxRef.current) {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) {
+        console.warn('Web Audio API не поддерживается');
+        return null;
+      }
+      audioCtxRef.current = new AudioContextClass();
+    }
+    if (audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  }, []);
+
+  const stopNow = useCallback(() => {
+    if (stopTimeoutRef.current) {
+      clearTimeout(stopTimeoutRef.current);
+      stopTimeoutRef.current = null;
+    }
+    if (activeOscillatorRef.current) {
+      try {
+        activeOscillatorRef.current.stop();
+        activeOscillatorRef.current.disconnect();
+      } catch (_) {}
+      activeOscillatorRef.current = null;
+      activeGainRef.current = null;
+    }
+    setActiveNote(null);
+  }, []);
+
+  const playNote = useCallback((note: string) => {
     const freq = NOTE_FREQUENCIES[note];
     if (!freq) return;
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
+
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    if (stopTimeoutRef.current) {
+      clearTimeout(stopTimeoutRef.current);
+      stopTimeoutRef.current = null;
+    }
+    if (activeOscillatorRef.current) {
+      try {
+        activeOscillatorRef.current.stop();
+        activeOscillatorRef.current.disconnect();
+      } catch (_) {}
+      activeOscillatorRef.current = null;
+      activeGainRef.current = null;
+    }
+
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
     oscillator.type = 'sine';
     oscillator.frequency.value = freq;
     gainNode.gain.value = 0.3;
     oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    gainNode.connect(ctx.destination);
+
     oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.4);
-    if (onNotePlay) onNotePlay(note, freq);
-  };
-
-  const handleNotePress = (note: string) => {
+    activeOscillatorRef.current = oscillator;
+    activeGainRef.current = gainNode;
     setActiveNote(note);
-    playSound(note);
-    setTimeout(() => setActiveNote(null), 200);
+
+    noteStartTimeRef.current = performance.now();
+
+    if (onNotePlay) onNotePlay(note, freq);
+  }, [getAudioContext, onNotePlay]);
+
+  const stopNote = useCallback(() => {
+    if (!activeOscillatorRef.current) return;
+    const elapsed = performance.now() - noteStartTimeRef.current;
+    if (elapsed < MIN_DURATION) {
+      if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
+      stopTimeoutRef.current = window.setTimeout(() => {
+        stopNow();
+        stopTimeoutRef.current = null;
+      }, MIN_DURATION - elapsed);
+    } else {
+      stopNow();
+    }
+  }, [stopNow]);
+
+  // Обработка последнего результата для подсветки
+  useEffect(() => {
+    if (lastResult) {
+      setHighlightedNote(lastResult.note);
+      setHighlightColor(lastResult.isCorrect ? 'green' : 'red');
+      const timer = setTimeout(() => {
+        setHighlightedNote(null);
+        setHighlightColor(null);
+      }, 600);
+      return () => clearTimeout(timer);
+    } else {
+      setHighlightedNote(null);
+      setHighlightColor(null);
+    }
+  }, [lastResult]);
+
+  const handleMouseDown = (note: string) => {
+    setHighlightedNote(null);
+    setHighlightColor(null);
+    playNote(note);
   };
 
-  // Процентное позиционирование для чёрных клавиш
-  // Белая клавиша занимает 10% ширины (так как 10 белых)
-  // Чёрная клавиша имеет ширину 6% (можно настроить)
-  const blackKeyWidth = 6; // в %
-  const whiteKeyWidth = 10; // в %
+  const handleMouseUp = () => {
+    stopNote();
+  };
+
+  const handleMouseLeave = () => {
+    stopNote();
+  };
+
+  useEffect(() => {
+    const pressedKeys = new Set<string>();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (pressedKeys.has(key)) return;
+      const note = KEYBOARD_MAP[key];
+      if (note) {
+        e.preventDefault();
+        pressedKeys.add(key);
+        setHighlightedNote(null);
+        setHighlightColor(null);
+        playNote(note);
+      }
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (KEYBOARD_MAP[key]) {
+        e.preventDefault();
+        pressedKeys.delete(key);
+        stopNote();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+      stopNow();
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close();
+      }
+    };
+  }, [playNote, stopNote, stopNow]);
+
+  const blackKeyWidth = 6;
+  const whiteKeyWidth = 10;
 
   return (
     <div className={styles.pianoContainer}>
       <div className={styles.whiteKeys}>
-        {whiteKeys.map((note) => (
-          <div
-            key={note}
-            className={`${styles.whiteKey} ${activeNote === note ? styles.activeWhite : ''}`}
-            onMouseDown={() => handleNotePress(note)}
-          >
-            <span className={styles.noteLabel}>{getRussianNoteName(note)}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.blackKeys}>
-        {blackKeys.map((note) => {
-          // Находим индекс белой клавиши, после которой стоит чёрная
-          const baseNote = note.replace('#', '');
-          const whiteIndex = whiteKeys.indexOf(baseNote);
-          // Вычисляем позицию: центр промежутка между белыми клавишами
-          const leftPercent = (whiteIndex + 1) * whiteKeyWidth - blackKeyWidth / 2;
+        {whiteKeys.map((note) => {
+          let extraClass = '';
+          if (activeNote === note) extraClass = styles.activeWhite;
+          else if (highlightedNote === note && highlightColor === 'green') extraClass = styles.correct;
+          else if (highlightedNote === note && highlightColor === 'red') extraClass = styles.wrong;
           return (
             <div
               key={note}
-              className={`${styles.blackKey} ${activeNote === note ? styles.activeBlack : ''}`}
+              className={`${styles.whiteKey} ${extraClass}`}
+              onMouseDown={() => handleMouseDown(note)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onTouchStart={() => handleMouseDown(note)}
+              onTouchEnd={handleMouseUp}
+            >
+              <span className={styles.noteLabel}>{getRussianNoteName(note)}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className={styles.blackKeys}>
+        {blackKeys.map((note) => {
+          const baseNote = note.replace('#', '');
+          const whiteIndex = whiteKeys.indexOf(baseNote);
+          const leftPercent = (whiteIndex + 1) * whiteKeyWidth - blackKeyWidth / 2;
+          let extraClass = '';
+          if (activeNote === note) extraClass = styles.activeBlack;
+          else if (highlightedNote === note && highlightColor === 'green') extraClass = styles.correct;
+          else if (highlightedNote === note && highlightColor === 'red') extraClass = styles.wrong;
+          return (
+            <div
+              key={note}
+              className={`${styles.blackKey} ${extraClass}`}
               style={{
                 left: `${leftPercent}%`,
                 width: `${blackKeyWidth}%`,
               }}
-              onClick={() => handleNotePress(note)}
+              onMouseDown={() => handleMouseDown(note)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onTouchStart={() => handleMouseDown(note)}
+              onTouchEnd={handleMouseUp}
             >
               <span className={styles.noteLabel}>{getRussianNoteName(note)}</span>
             </div>

@@ -1,4 +1,4 @@
-import styles from './Hidden_note.module.css';
+import styles from './HiddenNote.module.css';
 import skripKey from '../assets/skrip_key.png';
 
 interface HiddenNoteProps {
@@ -8,15 +8,15 @@ interface HiddenNoteProps {
 // Позиции нот – теперь C4 на 95 (добавочная линия)
 const notePositions: Record<string, number> = {
   'C4': 95,
-  'D4': 110, // оставляем как было, но можно пересчитать при необходимости
-  'E4': 100,
-  'F4': 90,
-  'G4': 80,
-  'A4': 70,
-  'B4': 60,
-  'C5': 50,
-  'D5': 40,
-  'E5': 30,
+  'D4': 87.5,
+  'E4': 80,
+  'F4': 72.5,
+  'G4': 65,
+  'A4': 57.5,
+  'B4': 50,
+  'C5': 42.5,
+  'D5': 35,
+  'E5': 27.5,
 };
 
 export default function HiddenNote({ note }: HiddenNoteProps) {
