@@ -1,8 +1,9 @@
+/* Шапка – тёмный фон, выравнивание по краям */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
+  padding: 8px 16px;
   background: #2c3e50;
   color: white;
   width: 100%;

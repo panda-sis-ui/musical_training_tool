@@ -1,7 +1,7 @@
-// src/components/Piano.tsx
 import { useState, useRef, useCallback, useEffect } from 'react';
 import styles from './Piano.module.css';
 
+// Частоты для каждой ноты (используются в пианино)
 const NOTE_FREQUENCIES: Record<string, number> = {
   'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13,
   'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00,
@@ -10,9 +10,11 @@ const NOTE_FREQUENCIES: Record<string, number> = {
   'E5': 659.25,
 };
 
+// Белые и чёрные клавиши в порядке расположения
 const whiteKeys = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5'];
 const blackKeys = ['C#4', 'D#4', 'F#4', 'G#4', 'A#4', 'C#5', 'D#5'];
 
+// Маппинг клавиш клавиатуры на ноты (русская раскладка не учитывается)
 const KEYBOARD_MAP: Record<string, string> = {
   'a': 'C4',  'w': 'C#4',
   's': 'D4',  'e': 'D#4',
@@ -26,8 +28,10 @@ const KEYBOARD_MAP: Record<string, string> = {
   ';': 'E5',
 };
 
+// Минимальная длительность звука при отпускании клавиши (чтобы не было щелчков)
 const MIN_DURATION = 100;
 
+// Преобразование английского названия ноты в русское (с учётом диеза)
 const getRussianNoteName = (note: string): string => {
   const base = note.slice(0, -1);
   const isSharp = base.includes('#');
@@ -41,36 +45,41 @@ const getRussianNoteName = (note: string): string => {
 };
 
 interface PianoProps {
-  onNotePlay?: (note: string, frequency: number) => void;
-  lastResult?: { note: string; isCorrect: boolean } | null;
+  onNotePlay?: (note: string, frequency: number) => void; // колбэк при нажатии
+  lastResult?: { note: string; isCorrect: boolean } | null; // для подсветки клавиш
+  onInitAudio?: () => void;
 }
 
-export default function Piano({ onNotePlay, lastResult }: PianoProps) {
-  const [activeNote, setActiveNote] = useState<string | null>(null);
-  const [highlightedNote, setHighlightedNote] = useState<string | null>(null);
+export default function Piano({ onNotePlay, lastResult, onInitAudio }: PianoProps) {
+  const [activeNote, setActiveNote] = useState<string | null>(null); // текущая нажатая нота
+  const [highlightedNote, setHighlightedNote] = useState<string | null>(null); // подсвеченная нота
   const [highlightColor, setHighlightColor] = useState<'green' | 'red' | null>(null);
 
+  // Рефы для управления звуком
   const audioCtxRef = useRef<AudioContext | null>(null);
   const activeOscillatorRef = useRef<OscillatorNode | null>(null);
   const activeGainRef = useRef<GainNode | null>(null);
   const noteStartTimeRef = useRef<number>(0);
   const stopTimeoutRef = useRef<number | null>(null);
 
+  // Получение или создание AudioContext
   const getAudioContext = useCallback(() => {
-    if (!audioCtxRef.current) {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) {
-        console.warn('Web Audio API не поддерживается');
-        return null;
-      }
-      audioCtxRef.current = new AudioContextClass();
+  // Если контекста нет или он закрыт, создаём новый
+  if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) {
+      console.warn('Web Audio API не поддерживается');
+      return null;
     }
-    if (audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume();
-    }
-    return audioCtxRef.current;
-  }, []);
+    audioCtxRef.current = new AudioContextClass();
+  }
+  if (audioCtxRef.current.state === 'suspended') {
+    audioCtxRef.current.resume();
+  }
+  return audioCtxRef.current;
+}, []);
 
+  // Немедленная остановка звука и сброс состояния
   const stopNow = useCallback(() => {
     if (stopTimeoutRef.current) {
       clearTimeout(stopTimeoutRef.current);
@@ -87,6 +96,7 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
     setActiveNote(null);
   }, []);
 
+  // Воспроизведение ноты (запуск осциллятора)
   const playNote = useCallback((note: string) => {
     const freq = NOTE_FREQUENCIES[note];
     if (!freq) return;
@@ -94,6 +104,7 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
     const ctx = getAudioContext();
     if (!ctx) return;
 
+    // Останавливаем предыдущий звук, если был
     if (stopTimeoutRef.current) {
       clearTimeout(stopTimeoutRef.current);
       stopTimeoutRef.current = null;
@@ -125,6 +136,7 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
     if (onNotePlay) onNotePlay(note, freq);
   }, [getAudioContext, onNotePlay]);
 
+  // Остановка звука с учётом минимальной длительности
   const stopNote = useCallback(() => {
     if (!activeOscillatorRef.current) return;
     const elapsed = performance.now() - noteStartTimeRef.current;
@@ -139,7 +151,7 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
     }
   }, [stopNow]);
 
-  // Обработка последнего результата для подсветки
+  // Обработка изменения lastResult для подсветки клавиш (на 600 мс)
   useEffect(() => {
     if (lastResult) {
       setHighlightedNote(lastResult.note);
@@ -155,7 +167,10 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
     }
   }, [lastResult]);
 
+  // Обработчики мыши/тача для клавиш
   const handleMouseDown = (note: string) => {
+    if (onInitAudio) onInitAudio();
+    // При новом нажатии сбрасываем старую подсветку результата
     setHighlightedNote(null);
     setHighlightColor(null);
     playNote(note);
@@ -169,6 +184,7 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
     stopNote();
   };
 
+  // Подписка на клавиатуру (нажатие/отпускание)
   useEffect(() => {
     const pressedKeys = new Set<string>();
 
@@ -179,6 +195,7 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
       if (note) {
         e.preventDefault();
         pressedKeys.add(key);
+        if (onInitAudio) onInitAudio();
         setHighlightedNote(null);
         setHighlightColor(null);
         playNote(note);
@@ -198,20 +215,21 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
     window.addEventListener('keyup', onKeyUp);
 
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      stopNow();
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
-        audioCtxRef.current.close();
-      }
-    };
+  window.removeEventListener('keydown', onKeyDown);
+  window.removeEventListener('keyup', onKeyUp);
+  stopNow();
+  if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+    audioCtxRef.current.close();
+  }
+};
   }, [playNote, stopNote, stopNow]);
 
+  // Ширина чёрной и белой клавиш в процентах (для позиционирования)
   const blackKeyWidth = 6;
   const whiteKeyWidth = 10;
 
   return (
-    <div className={styles.pianoContainer}>
+    <div className={styles.pianoContainer} style={{ height: '100%', width: '100%', maxWidth: '100%', minHeight: '180px', }}>
       <div className={styles.whiteKeys}>
         {whiteKeys.map((note) => {
           let extraClass = '';
@@ -235,6 +253,7 @@ export default function Piano({ onNotePlay, lastResult }: PianoProps) {
       </div>
       <div className={styles.blackKeys}>
         {blackKeys.map((note) => {
+          // Вычисляем позицию чёрной клавиши относительно белых
           const baseNote = note.replace('#', '');
           const whiteIndex = whiteKeys.indexOf(baseNote);
           const leftPercent = (whiteIndex + 1) * whiteKeyWidth - blackKeyWidth / 2;

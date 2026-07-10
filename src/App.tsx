@@ -4,14 +4,17 @@ import Header from './components/Header';
 import Hero_img from './components/Hero_img';
 import HiddenNote from './components/HiddenNote';
 import NewNoteButton from './components/NewNoteButton';
+import Check from './components/Check';
 import foxImage from './assets/fox1.png';
 
+// Все возможные ноты в диапазоне от C4 до E5
 const ALL_NOTES = [
   'C4','C#4','D4','D#4','E4',
   'F4','F#4','G4','G#4','A4',
   'A#4','B4','C5','C#5','D5','D#5','E5'
 ];
 
+// Частоты для воспроизведения звука
 const NOTE_FREQUENCIES: Record<string, number> = {
   'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13,
   'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00,
@@ -21,16 +24,24 @@ const NOTE_FREQUENCIES: Record<string, number> = {
 };
 
 function App() {
+  const [score, setScore] = useState(0);  // счётчик правильных ответов
+  const [isNoteGuessed, setIsNoteGuessed] = useState(false);
+
+  // Текущая загаданная нота (выбирается случайно при первом рендере)
   const [targetNote, setTargetNote] = useState<string>(() => {
     return ALL_NOTES[Math.floor(Math.random() * ALL_NOTES.length)];
   });
 
+  // Сообщение о результате проверки
   const [resultMessage, setResultMessage] = useState<{ text: string; isCorrect: boolean } | null>(null);
+  // Последний сыгранный результат для подсветки клавиш
   const [lastResult, setLastResult] = useState<{ note: string; isCorrect: boolean } | null>(null);
 
+  // Реф для AudioContext (инициализируется по первому клику пользователя)
   const audioCtxRef = useRef<AudioContext | null>(null);
   const [isAudioReady, setIsAudioReady] = useState(false);
 
+  // Инициализация AudioContext – вызывается по первому клику на странице
   const initAudio = useCallback(() => {
     if (audioCtxRef.current) return;
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -45,11 +56,17 @@ function App() {
     setIsAudioReady(true);
   }, []);
 
+  // Воспроизведение звука для заданной ноты (синусоида, длительность 0.4 с)
   const playNoteSound = useCallback((note: string) => {
     const freq = NOTE_FREQUENCIES[note];
     if (!freq) return;
-    const ctx = audioCtxRef.current;
-    if (!ctx) return;
+    let ctx = audioCtxRef.current;
+    if (!ctx || ctx.state === 'closed') {
+      // пересоздаём контекст, если его нет или он закрыт
+      initAudio();
+      ctx = audioCtxRef.current;
+      if (!ctx) return;
+    }
     if (ctx.state === 'suspended') {
       ctx.resume();
     }
@@ -62,14 +79,9 @@ function App() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.4);
-  }, []);
+  }, [initAudio]);
 
-  useEffect(() => {
-    if (isAudioReady) {
-      playNoteSound(targetNote);
-    }
-  }, [targetNote, isAudioReady, playNoteSound]);
-
+  // Первый клик по странице инициализирует аудио и проигрывает целевую ноту
   useEffect(() => {
     const handleFirstClick = () => {
       initAudio();
@@ -84,58 +96,110 @@ function App() {
     };
   }, [initAudio, playNoteSound, targetNote]);
 
-  const generateNewNote = useCallback(() => {
-    const newNote = ALL_NOTES[Math.floor(Math.random() * ALL_NOTES.length)];
-    setTargetNote(newNote);
-    setResultMessage(null);
-    setLastResult(null); // сброс подсветки
-  }, []);
-
+// Обработчик нажатия на клавишу пианино
   const handleNotePlay = (playedNote: string, frequency: number) => {
-    const isCorrect = playedNote === targetNote;
-    setLastResult({ note: playedNote, isCorrect });
-    setResultMessage({
-      text: isCorrect ? '✅ Правильно!' : `❌ Неправильно`,
-      isCorrect,
-    });
-  };
+  const isCorrect = playedNote === targetNote;
+  setLastResult({ note: playedNote, isCorrect });
+  setResultMessage({
+    text: isCorrect ? '✅ Правильно!' : '❌ Неправильно',
+    isCorrect,
+  });
+  if (isCorrect && !isNoteGuessed) {
+    setScore(prev => prev + 1);
+    setIsNoteGuessed(true);
+  }
+}; // <-- закрывающая скобка для handleNotePlay
 
-  const playTargetNote = useCallback(() => {
-    if (isAudioReady) {
-      playNoteSound(targetNote);
-    } else {
-      initAudio();
-      if (audioCtxRef.current) {
-        playNoteSound(targetNote);
-      }
-    }
-  }, [targetNote, isAudioReady, initAudio, playNoteSound]);
+// Генерация новой случайной ноты и сброс результатов
+const generateNewNote = useCallback(() => {
+  const newNote = ALL_NOTES[Math.floor(Math.random() * ALL_NOTES.length)];
+  setTargetNote(newNote);
+  setResultMessage(null);
+  setLastResult(null);
+  setIsNoteGuessed(false);
+
+  initAudio();
+  if (audioCtxRef.current) {
+    playNoteSound(newNote);
+  }
+}, [initAudio, playNoteSound]);
+
+// Проигрывание загаданной ноты (по клику на облачко)
+const playTargetNote = useCallback(() => {
+  initAudio();
+  if (audioCtxRef.current) {
+    playNoteSound(targetNote);
+  }
+}, [targetNote, initAudio, playNoteSound]);
+
 
   return (
-    <>
-      <Header title="Угадай ноту" />
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'space-around' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <Header title="Угадай ноту" />
+
+    {/* Верхняя часть – ограничена по высоте, чтобы не перекрывать пианино */}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        flexShrink: 0,
+        maxHeight: '45vh',        // не более 45% высоты экрана
+        padding: '8px 16px',
+        gap: '10px',
+        flexWrap: 'wrap',
+        overflow: 'hidden',       // скрываем лишнее, если содержимое слишком большое
+      }}
+    >
+      {/* Левая колонка */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '4px',
+          flexShrink: 0,
+        }}
+      >
         <Hero_img
           name_image={foxImage}
           name_game="Угадай ноту"
           onCloudClick={playTargetNote}
         />
-        <HiddenNote note={targetNote} />
+        {resultMessage && (
+          <div
+            style={{
+              textAlign: 'center',
+              fontSize: '24px',
+              color: resultMessage.isCorrect ? 'green' : 'red',
+            }}
+          >
+            {resultMessage.text}
+          </div>
+        )}
+        <Check score={score} />
+        <NewNoteButton onNewNote={generateNewNote} />
       </div>
-      <Piano onNotePlay={handleNotePlay} lastResult={lastResult} />
-      {resultMessage && (
-        <div style={{
-          textAlign: 'center',
-          fontSize: '24px',
-          marginTop: '20px',
-          color: resultMessage.isCorrect ? 'green' : 'red',
-        }}>
-          {resultMessage.text}
-        </div>
-      )}
-      <NewNoteButton onNewNote={generateNewNote} />
-    </>
-  );
+
+      {/* Правая часть – нотный стан */}
+      <HiddenNote note={targetNote} />
+    </div>
+
+    {/* Пианино – занимает всё оставшееся место */}
+    <div
+      style={{
+        flex: '1 1 auto',
+        minHeight: 0,
+        display: 'flex',
+        alignItems: 'stretch',
+        padding: '0 8px 8px',
+      }}
+    >
+      <Piano onNotePlay={handleNotePlay} lastResult={lastResult} onInitAudio={initAudio} />
+    </div>
+  </div>
+);
 }
 
 export default App;

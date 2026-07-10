@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface NewNoteButtonProps {
-  onNewNote: () => void;
-  label?: string;
+  onNewNote: () => void;   // функция генерации новой ноты
+  label?: string;          // текст на кнопке (по умолчанию "🎲 Новая нота")
 }
 
 export default function NewNoteButton({ onNewNote, label = '🎲 Новая нота' }: NewNoteButtonProps) {

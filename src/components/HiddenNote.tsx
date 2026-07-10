@@ -2,12 +2,12 @@ import styles from './HiddenNote.module.css';
 import skripKey from '../assets/skrip_key.png';
 
 interface HiddenNoteProps {
-  note: string;
+  note: string; // нота в формате, например, "C#4"
 }
 
-// Позиции нот – теперь C4 на 95 (добавочная линия)
+// Позиции нот на нотном стане (y-координата в SVG)
 const notePositions: Record<string, number> = {
-  'C4': 95,
+  'C4': 95,   // с добавочной линией
   'D4': 87.5,
   'E4': 80,
   'F4': 72.5,
@@ -20,22 +20,23 @@ const notePositions: Record<string, number> = {
 };
 
 export default function HiddenNote({ note }: HiddenNoteProps) {
+  // Отделяем основную ноту от знака альтерации (пока только #)
   let baseNote = note;
   let accidental = '';
   if (note.includes('#')) {
     const parts = note.split('#');
-    baseNote = parts[0] + parts[1];
+    baseNote = parts[0] + parts[1]; // например, "C4"
     accidental = '#';
   }
   const y = notePositions[baseNote];
   if (y === undefined) return null;
 
-  const showLedgerLine = baseNote === 'C4';
+  const showLedgerLine = baseNote === 'C4'; // для C4 нужна добавочная линия
 
   const svgWidth = 220;
   const svgHeight = 110;
   const lineY = [20, 35, 50, 65, 80]; // линии стана
-  const noteX = 100;                  // центр ноты (сдвинуто влево)
+  const noteX = 100;                  // центр ноты
   const noteRadius = 8;
 
   return (
@@ -46,7 +47,7 @@ export default function HiddenNote({ note }: HiddenNoteProps) {
         height="100%"
         className={styles.svg}
       >
-        {/* 5 линий нотного стана – теперь начинаются с x1=15 */}
+        {/* Пять линий нотного стана */}
         {lineY.map((yPos) => (
           <line
             key={yPos}
@@ -59,7 +60,7 @@ export default function HiddenNote({ note }: HiddenNoteProps) {
           />
         ))}
 
-        {/* Добавочная линия для C4 – на той же высоте, что и нота (y=95) */}
+        {/* Добавочная линия для C4 */}
         {showLedgerLine && (
           <line
             x1="60"
@@ -71,7 +72,7 @@ export default function HiddenNote({ note }: HiddenNoteProps) {
           />
         )}
 
-        {/* Скрипичный ключ – сдвинут влево */}
+        {/* Скрипичный ключ */}
         <image
           href={skripKey}
           x="15"
@@ -81,7 +82,7 @@ export default function HiddenNote({ note }: HiddenNoteProps) {
           preserveAspectRatio="xMidYMid meet"
         />
 
-        {/* Знак диеза – теперь на той же высоте, что и нота (y) */}
+        {/* Диез, если есть */}
         {accidental === '#' && (
           <text
             x={noteX - 22}
@@ -95,7 +96,7 @@ export default function HiddenNote({ note }: HiddenNoteProps) {
           </text>
         )}
 
-        {/* Нота – на позиции y (для C4 это 95, т.е. на добавочной линии) */}
+        {/* Сама нота (залитый эллипс) */}
         <ellipse
           cx={noteX}
           cy={y}
