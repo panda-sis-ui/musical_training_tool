@@ -1,20 +1,25 @@
 import styles from './Hero_img.module.css';
 
 interface HeroImgProps {
-  name_image: string;      // путь к картинке (аватарка)
-  name_game: string;       // текст, идущий по дуге вокруг аватарки
-  onCloudClick?: () => void; // колбэк при клике на облачко
+  name_image: string;
+  name_game: string;
+  onCloudClick?: () => void;
+  resultMessage?: { text: string; isCorrect: boolean } | null;
 }
 
-export default function Hero_img({ name_image, name_game, onCloudClick }: HeroImgProps) {
-  // Обработчик клика по облачку – вызывает переданную функцию или выводит заглушку
+export default function Hero_img({ name_image, name_game, onCloudClick, resultMessage }: HeroImgProps) {
   const handleCloudClick = () => {
-    if (onCloudClick) {
-      onCloudClick();
-    } else {
-      console.log('Звучит нота');
-    }
+    if (onCloudClick) onCloudClick();
   };
+
+  // Определяем, что показывать в облачке
+  const cloudContent = resultMessage ? (
+    <span style={{ color: resultMessage.isCorrect ? 'green' : 'red', fontSize: '1.8rem' }}>
+      {resultMessage.text}
+    </span>
+  ) : (
+    <span className={styles.cloudText}>💭</span>
+  );
 
   return (
     <div className={styles.heroContainer}>
@@ -32,7 +37,7 @@ export default function Hero_img({ name_image, name_game, onCloudClick }: HeroIm
       </div>
       {/* Облачко с эмодзи – кликабельно */}
       <div className={styles.cloud} onClick={handleCloudClick}>
-        <span className={styles.cloudText}>💭</span>
+        {cloudContent}
         <div className={styles.cloudTail}></div>
       </div>
     </div>

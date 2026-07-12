@@ -63,9 +63,9 @@ export default function HiddenNote({ note }: HiddenNoteProps) {
         {/* Добавочная линия для C4 */}
         {showLedgerLine && (
           <line
-            x1="60"
+            x1="80"
             y1={95}
-            x2="130"
+            x2="120"
             y2={95}
             stroke="#333"
             strokeWidth="1.5"

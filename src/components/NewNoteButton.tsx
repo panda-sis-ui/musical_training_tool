@@ -12,8 +12,8 @@ export default function NewNoteButton({ onNewNote, label = '🎲 Новая но
       style={{
         margin: '20px auto',
         display: 'block',
-        padding: '12px 24px',
-        fontSize: '18px',
+        padding: '16px 32px',
+        fontSize: '22px',
         borderRadius: '8px',
         border: 'none',
         background: '#2c3e50',
