@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import Piano from './components/Piano';
 import Header from './components/Header';
 import Hero_img from './components/Hero_img';
@@ -39,7 +39,6 @@ function App() {
 
   // Реф для AudioContext (инициализируется по первому клику пользователя)
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const [isAudioReady, setIsAudioReady] = useState(false);
 
   // Инициализация AudioContext – вызывается по первому клику на странице
 const initAudio = useCallback(() => {
@@ -56,7 +55,6 @@ const initAudio = useCallback(() => {
   if (audioCtxRef.current.state === 'suspended') {
     audioCtxRef.current.resume();
   }
-  setIsAudioReady(true);
 }, []);
 
   // Воспроизведение звука для заданной ноты (синусоида, длительность 0.4 с)
@@ -86,7 +84,7 @@ const playNoteSound = useCallback(async (note: string) => {
 
 
   // Обработчик нажатия на клавишу пианино
-  const handleNotePlay = (playedNote: string, frequency: number) => {
+  const handleNotePlay = (playedNote: string) => {
     const isCorrect = playedNote === targetNote;
     setLastResult({ note: playedNote, isCorrect });
     setResultMessage({
@@ -133,12 +131,13 @@ const playNoteSound = useCallback(async (note: string) => {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-around',
-          flex: 1,                     // растягивается
-          maxHeight: '60vh',           // не более 67% высоты экрана
-          minHeight: 0,                // может сжиматься при нехватке места
+          flex: 1,
+          maxHeight: '60vh',
+          minHeight: 0,
           gap: '10px',
           flexWrap: 'wrap',
-          overflow: 'hidden',    // скрываем лишнее, если содержимое слишком большое
+          overflow: 'hidden',
+          padding: '8px',
         }}
       >
         {/* Левая колонка */}
@@ -149,6 +148,7 @@ const playNoteSound = useCallback(async (note: string) => {
             alignItems: 'center',
             gap: '10px',
             flexShrink: 0,
+            minWidth: '200px',
           }}
         >
           <Hero_img
@@ -159,9 +159,10 @@ const playNoteSound = useCallback(async (note: string) => {
           />
           <div style={{
             display: 'flex',
-            justifyContent: 'space-around',
+            justifyContent: 'center',
+            gap: '12px',
             width: '100%',
-            alignItems: 'center',
+            flexWrap: 'wrap',
           }}>
             <Check score={score} />
             <NewNoteButton onNewNote={generateNewNote} />
@@ -169,14 +170,16 @@ const playNoteSound = useCallback(async (note: string) => {
         </div>
 
         {/* Правая часть – нотный стан */}
-        <HiddenNote note={targetNote} />
+        <div style={{ flex: '1 1 200px', minWidth: '150px', maxWidth: '400px' }}>
+          <HiddenNote note={targetNote} />
+        </div>
       </div>
 
       {/* Пианино – занимает всё оставшееся место */}
       <div
         style={{
-          height: '40vh',              // ровно треть экрана
-          minHeight: '180px',          // минимум для удобства
+          height: '35vh',              // ровно треть экрана
+          minHeight: '200px',          // минимум для удобства
           flexShrink: 0,               // не сжимается
           display: 'flex',
           alignItems: 'stretch',

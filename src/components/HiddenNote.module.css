@@ -2,10 +2,11 @@
 .container {
   display: inline-block;
   width: 100%;
-  max-width: 50%;        /* как было */
+  max-width: 100%;        /* как было */
   padding: 8px;
   box-sizing: border-box;
   flex-shrink: 0;        /* не сжимается */
+  min-width: 120px;
   /* убираем max-height */
 }
 
@@ -16,4 +17,9 @@
   background: #fcf8f0;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+@media (max-width: 600px) {
+  .container {
+    min-width: 80px;
+  }
 }

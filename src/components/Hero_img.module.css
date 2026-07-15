@@ -97,3 +97,46 @@
   font-size: 2.8rem;
   line-height: 1;
 }
+
+/* Существующие стили оставляем, добавляем медиа-запросы */
+
+@media (max-width: 600px) {
+  .heroContainer {
+    gap: 10px;
+    padding: 5px;
+  }
+
+  .imageWrapper {
+    width: 120px;
+    height: 120px;
+  }
+
+  .cloud {
+    min-width: 50px;
+    min-height: 50px;
+    padding: 6px 12px;
+    font-size: 1.8rem;
+    border-radius: 30px;
+  }
+
+  .cloudText {
+    font-size: 1.8rem;
+  }
+
+  .arcText {
+    font-size: 16px !important; /* уменьшаем текст по дуге */
+  }
+}
+
+@media (max-width: 400px) {
+  .imageWrapper {
+    width: 90px;
+    height: 90px;
+  }
+  .cloud {
+    font-size: 1.4rem;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 4px 8px;
+  }
+}

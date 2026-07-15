@@ -2,12 +2,12 @@
 .pianoContainer {
   position: relative;
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
   margin: 0 auto;           /* было 20px auto – убираем вертикальные отступы */
   user-select: none;
   border-radius: 12px;
   background: #2c3e50;
-  padding: 5px 10px;        /* было 10px 10px – можно оставить 5px сверху/снизу */
+  padding: 5px 8px;        /* было 10px 10px – можно оставить 5px сверху/снизу */
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
@@ -16,7 +16,7 @@
   display: flex;
   width: 100%;
   height: 100%; 
-  min-height: 120px; 
+  min-height: 140px; 
   position: relative;
 }
 
@@ -139,28 +139,29 @@
 }
 
 /* Адаптация для мобильных устройств */
-@media (max-width: 768px) and (orientation: landscape) {
-  .whiteKeys {
-    height: 60vh;
-    max-height: 300px;
-  }
+@media (max-width: 768px) {
   .pianoContainer {
-    padding: 5px 3px;
-    border-radius: 8px;
+    padding: 3px 4px;
+  }
+  .whiteKeys {
+    min-height: 120px;
   }
   .noteLabel {
-    font-size: clamp(12px, 1.5vw, 18px) !important;
+    font-size: clamp(10px, 1.2vw, 16px) !important;
   }
   .whiteKey .noteLabel {
-    font-size: clamp(14px, 2vw, 24px) !important;
+    font-size: clamp(12px, 1.6vw, 20px) !important;
   }
   .blackKey .noteLabel {
-    font-size: clamp(10px, 1.2vw, 16px) !important;
+    font-size: clamp(8px, 1vw, 14px) !important;
   }
 }
 
-@media (max-width: 480px) and (orientation: portrait) {
+@media (max-width: 480px) {
   .whiteKeys {
-    height: 100%;
+    min-height: 100px;
+  }
+  .pianoContainer {
+    padding: 2px 2px;
   }
 }
