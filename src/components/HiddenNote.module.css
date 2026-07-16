@@ -3,7 +3,6 @@
   display: inline-block;
   width: 100%;
   max-width: 100%;        /* как было */
-  padding: 8px;
   box-sizing: border-box;
   flex-shrink: 0;        /* не сжимается */
   min-width: 120px;

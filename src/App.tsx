@@ -131,12 +131,10 @@ const playNoteSound = useCallback(async (note: string) => {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-around',
-          flex: 1,
-          maxHeight: '60vh',
+          flex: '1 1 auto',
           minHeight: 0,
           gap: '10px',
           flexWrap: 'wrap',
-          overflow: 'hidden',
           padding: '8px',
         }}
       >
@@ -146,7 +144,7 @@ const playNoteSound = useCallback(async (note: string) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '10px',
+            gap: '8px',
             flexShrink: 0,
             minWidth: '200px',
           }}
@@ -161,8 +159,8 @@ const playNoteSound = useCallback(async (note: string) => {
             display: 'flex',
             justifyContent: 'center',
             gap: '12px',
-            width: '100%',
             flexWrap: 'wrap',
+            alignItems: 'center',
           }}>
             <Check score={score} />
             <NewNoteButton onNewNote={generateNewNote} />
@@ -178,13 +176,11 @@ const playNoteSound = useCallback(async (note: string) => {
       {/* Пианино – занимает всё оставшееся место */}
       <div
         style={{
-          height: '35vh',              // ровно треть экрана
-          minHeight: '200px',          // минимум для удобства
-          flexShrink: 0,               // не сжимается
-          display: 'flex',
-          alignItems: 'stretch',
-          padding: '0 8px 8px',
-        }}
+          flex: '0 0 auto',
+          minHeight: '200px',
+          height: 'auto',
+          padding: '8px',
+          }}
       >
         <Piano onNotePlay={handleNotePlay} lastResult={lastResult} onInitAudio={initAudio} audioContextRef={audioCtxRef}/>
       </div>
