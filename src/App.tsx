@@ -5,7 +5,12 @@ import Hero_img from './components/Hero_img';
 import HiddenNote from './components/HiddenNote';
 import NewNoteButton from './components/NewNoteButton';
 import Check from './components/Check';
-import foxImage from './assets/fox1.png';
+import fox1 from './assets/fox1.png';
+//import fox2 from './assets/fox2.png';
+import fox3 from './assets/fox3.png';
+import fox4 from './assets/fox4.png';
+import fox5 from './assets/fox5.png';
+
 
 // Все возможные ноты в диапазоне от C4 до E5
 const ALL_NOTES = [
@@ -34,8 +39,13 @@ function App() {
 
   // Сообщение о результате проверки
   const [resultMessage, setResultMessage] = useState<{ text: string; isCorrect: boolean } | null>(null);
+  //Состояние картинки
+  const [currentImage, setCurrentImage] = useState(fox1);
   // Последний сыгранный результат для подсветки клавиш
   const [lastResult, setLastResult] = useState<{ note: string; isCorrect: boolean } | null>(null);
+  
+  // ID для принудительного пересоздания HiddenNote при новой ноте (чтобы листья снова появились)
+  const [generationId, setGenerationId] = useState(0);
 
   // Реф для AudioContext (инициализируется по первому клику пользователя)
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -82,20 +92,25 @@ const playNoteSound = useCallback(async (note: string) => {
 }, [initAudio]);
 
 
-
   // Обработчик нажатия на клавишу пианино
   const handleNotePlay = (playedNote: string) => {
-    const isCorrect = playedNote === targetNote;
-    setLastResult({ note: playedNote, isCorrect });
-    setResultMessage({
-      text: isCorrect ? '✅ Правильно!' : '❌ Неправильно',
-      isCorrect,
-    });
-    if (isCorrect && !isNoteGuessed) {
+  const isCorrect = playedNote === targetNote;
+  setLastResult({ note: playedNote, isCorrect });
+  setResultMessage({
+    text: isCorrect ? '✅' : '❌',
+    isCorrect,
+  });
+
+  if (isCorrect) {
+    setCurrentImage(fox4);
+    if (!isNoteGuessed) {
       setScore(prev => prev + 1);
       setIsNoteGuessed(true);
     }
-  }; // <-- закрывающая скобка для handleNotePlay
+  } else {
+    setCurrentImage(fox5);
+  }
+};
 
   // Генерация новой случайной ноты и сброс результатов
   const generateNewNote = useCallback(() => {
@@ -104,6 +119,8 @@ const playNoteSound = useCallback(async (note: string) => {
     setResultMessage(null);
     setLastResult(null);
     setIsNoteGuessed(false);
+    setCurrentImage(fox1);
+    setGenerationId(prev => prev + 1); // увеличиваем счётчик, чтобы пересоздать HiddenNote
 
     initAudio();
     if (audioCtxRef.current) {
@@ -116,6 +133,7 @@ const playNoteSound = useCallback(async (note: string) => {
     initAudio();
     if (audioCtxRef.current) {
       playNoteSound(targetNote);
+      setCurrentImage(fox3);   // задумчивая лиса
     }
   }, [targetNote, initAudio, playNoteSound]);
 
@@ -150,8 +168,8 @@ const playNoteSound = useCallback(async (note: string) => {
           }}
         >
           <Hero_img
-            name_image={foxImage}
-            name_game="Угадай ноту"
+            name_image={currentImage}
+            name_game="Нажми, чтобы услышать"
             onCloudClick={playTargetNote}
             resultMessage={resultMessage}
           />
@@ -169,7 +187,7 @@ const playNoteSound = useCallback(async (note: string) => {
 
         {/* Правая часть – нотный стан */}
         <div style={{ flex: '1 1 200px', minWidth: '150px', maxWidth: '400px' }}>
-          <HiddenNote note={targetNote} />
+          <HiddenNote key={generationId} note={targetNote} />
         </div>
       </div>
 

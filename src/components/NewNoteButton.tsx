@@ -6,7 +6,7 @@ interface NewNoteButtonProps {
 
 import styles from './NewNoteButton.module.css';
 
-export default function NewNoteButton({ onNewNote, label = '🎲 Новая нота' }: NewNoteButtonProps) {
+export default function NewNoteButton({ onNewNote, label = '🎲 Следующая нота' }: NewNoteButtonProps) {
   return (
     <button onClick={onNewNote} className={styles.button}>
       {label}
