@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import styles from './HiddenNote.module.css';
 import skripKey from '../assets/skrip_key.png';
-import list1 from '../assets/list1.png';
-import list2 from '../assets/list2.png';
-import branch from '../assets/branch.png'; // импортируем ветку
+import leavesImage from '../assets/lists.png';
 
 interface HiddenNoteProps {
   note: string;
+  visible: boolean;          // управляется из App
+  onClear: () => void;       // вызывается при клике на метлу
 }
 
 const notePositions: Record<string, number> = {
@@ -15,10 +14,7 @@ const notePositions: Record<string, number> = {
   'D5': 35,   'E5': 27.5,
 };
 
-export default function HiddenNote({ note }: HiddenNoteProps) {
-  const [leavesVisible, setLeavesVisible] = useState(true);
-  const clearLeaves = () => setLeavesVisible(false);
-
+export default function HiddenNote({ note, visible, onClear }: HiddenNoteProps) {
   let baseNote = note;
   let accidental = '';
   if (note.includes('#')) {
@@ -68,15 +64,13 @@ export default function HiddenNote({ note }: HiddenNoteProps) {
           <ellipse cx={noteX} cy={y} rx={noteRadius} ry={noteRadius * 0.9} fill="#1a1a1a" stroke="#1a1a1a" strokeWidth="1" />
         </svg>
 
-        {leavesVisible && (
+        {visible && (
           <div className={styles.leavesLayer}>
-            <img src={list1} alt="лист" className={styles.leafBig1} />
-            <img src={list2} alt="лист" className={styles.leafBig2} />
-            <img src={branch} alt="ветка" className={styles.branch} />
+            <img src={leavesImage} alt="листья" className={styles.leavesImage} />
           </div>
         )}
 
-        <button className={styles.clearButton} onClick={clearLeaves} title="Убрать листья">
+        <button className={styles.clearButton} onClick={onClear} title="Убрать листья">
           🧹
         </button>
       </div>
