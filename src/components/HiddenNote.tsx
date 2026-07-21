@@ -1,28 +1,17 @@
 import styles from './HiddenNote.module.css';
-import skripKey from '../assets/skrip_key.png';
-import leavesImage from '../assets/lists.png';
+import skripKey from '../assets/skrip_key.webp';
+import leavesImage from '../assets/lists.webp';
+import { STAFF_POSITIONS, parseNote } from '../lib/notes';
 
 interface HiddenNoteProps {
   note: string;
-  visible: boolean;          // управляется из App
+  visible: boolean;          // управляется со страницы игры
   onClear: () => void;       // вызывается при клике на метлу
 }
 
-const notePositions: Record<string, number> = {
-  'C4': 95,   'D4': 87.5, 'E4': 80, 'F4': 72.5,
-  'G4': 65,   'A4': 57.5, 'B4': 50, 'C5': 42.5,
-  'D5': 35,   'E5': 27.5,
-};
-
 export default function HiddenNote({ note, visible, onClear }: HiddenNoteProps) {
-  let baseNote = note;
-  let accidental = '';
-  if (note.includes('#')) {
-    const parts = note.split('#');
-    baseNote = parts[0] + parts[1];
-    accidental = '#';
-  }
-  const y = notePositions[baseNote];
+  const { base: baseNote, accidental } = parseNote(note);
+  const y = STAFF_POSITIONS[baseNote];
   if (y === undefined) return null;
 
   const showLedgerLine = baseNote === 'C4';

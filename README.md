@@ -1,34 +1,46 @@
-# React + TypeScript + Vite
+# 🎵 Музыкальные игры
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Обучающее веб-приложение с музыкальными играми для учеников детской школы искусств.
+Работает в браузере, адаптировано под мобильные устройства.
 
-Currently, two official plugins are available:
+**Игры:**
+- 🎹 **Угадай ноту** — приложение играет ноту, ребёнок ищет её на пианино.
+  Нота показана на нотном стане, но спрятана под листьями (🧹 — подсказка).
+- 🚧 В планах (см. `docs/прототипы страниц/`): «Угадай интервал», «Теория»,
+  «Генератор мелодических диктантов».
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Технологии
 
-## React Compiler
+React 19 + TypeScript + Vite (+ React Compiler), react-router-dom (HashRouter — для GitHub Pages), Web Audio API для звука. Линтер — oxlint.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Структура проекта
 
-Note: This will impact Vite dev & build performances.
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+src/
+  lib/
+    notes.ts        # единый источник данных о нотах: частоты, названия, позиции на стане
+    audio.ts        # звуковой движок: один AudioContext, playNote / startNote / playSequence
+  hooks/
+    useGuessNoteGame.ts  # логика игры «Угадай ноту» (счёт, раунды, реакции)
+  components/       # переиспользуемые компоненты (Piano, HiddenNote, HeroImage, …)
+  pages/            # страницы-маршруты (тонкая вёрстка, логика — в хуках)
+  assets/           # картинки, используемые в приложении (WebP)
+docs/
+  images/           # исходные макеты и иллюстрации (в сборку не попадают)
+  прототипы страниц/ # статические HTML-прототипы будущих игр
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+**Как добавить новую игру:** создать хук с логикой в `src/hooks/`, страницу в
+`src/pages/` из готовых компонентов и маршрут в `src/App.tsx`. Данные о нотах —
+из `lib/notes.ts`, звук — через `lib/audio.ts` (для последовательностей нот есть
+`playSequence`).
+
+## Команды
+
+```bash
+npm install      # установка зависимостей
+npm run dev      # запуск дев-сервера
+npm run build    # сборка (с проверкой типов)
+npm run lint     # линтер
+npm run deploy   # публикация на GitHub Pages
+```
