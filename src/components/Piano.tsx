@@ -225,9 +225,11 @@ export default function Piano({
     return () => {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
-      stopNow();
     };
-  }, [playNote, stopNote, stopNow]);
+  }, [playNote, stopNote]);
+
+  // Глушим звук только при размонтировании, а не при каждом пересоздании playNote
+  useEffect(() => stopNow, [stopNow]);
 
   const blackKeyWidth = 6;
   const whiteKeyWidth = 10;
