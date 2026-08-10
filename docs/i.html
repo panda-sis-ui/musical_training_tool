@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Учебник — Урок 1. Высота и нотный стан</title>
+  <style>
+    /* ===== Глобальные стили ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: #f5f0eb;
+      color: #1e2b36;
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      align-items: stretch;
+    }
+
+    /* ===== Боковая панель ===== */
+    .sidebar {
+      width: 260px;
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 28px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #3e5a70;
+      color: #fff;
+    }
+
+    .topic-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .topic-item {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: default;
+      transition: background 0.15s;
+      color: #b0c7db;
+      border-left: 3px solid transparent;
+    }
+
+    .topic-item.active {
+      background: #3e5a70;
+      color: #fff;
+      border-left-color: #f1c40f;
+      font-weight: 500;
+    }
+
+    .topic-item:not(.active):hover {
+      background: #34495e;
+      color: #ecf0f1;
+    }
+
+    .topic-item .badge {
+      display: inline-block;
+      font-size: 12px;
+      background: #e67e22;
+      color: #fff;
+      border-radius: 12px;
+      padding: 0 10px;
+      margin-left: 8px;
+      line-height: 20px;
+      vertical-align: middle;
+    }
+
+    /* ===== Основная область ===== */
+    .main {
+      flex: 1;
+      padding: 32px 48px 48px 48px;
+      overflow-y: auto;
+      background: #fcf8f0;
+    }
+
+    .article {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .article h1 {
+      font-size: 34px;
+      font-weight: 700;
+      color: #1e2b36;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .article .subhead {
+      font-size: 18px;
+      color: #4a5f6e;
+      margin-bottom: 28px;
+      border-left: 4px solid #2c3e50;
+      padding-left: 16px;
+    }
+
+    .article h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      color: #1e2b36;
+      border-bottom: 2px solid #dce4e8;
+      padding-bottom: 6px;
+    }
+
+    .article h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      color: #2c3e50;
+    }
+
+    .article p {
+      margin-bottom: 14px;
+    }
+
+    /* Определения (рамка) */
+    .definition-box {
+      background: #eaf1f7;
+      border-left: 6px solid #2c3e50;
+      padding: 16px 22px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+      font-style: normal;
+    }
+
+    .definition-box strong {
+      display: block;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #2c3e50;
+      margin-bottom: 4px;
+    }
+
+    .definition-box p {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    /* Картинки-заглушки */
+    .image-placeholder {
+      background: #dde5eb;
+      border: 2px dashed #7f8c8d;
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      color: #3e5a70;
+      font-weight: 500;
+      margin: 24px 0;
+      font-size: 16px;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .image-placeholder span {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .image-placeholder small {
+      font-weight: normal;
+      color: #5d6f7e;
+    }
+
+    /* Интерактивный блок (задания) */
+    .interactive-section {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin: 32px 0 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8ed;
+    }
+
+    .interactive-section h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .interactive-section .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      background: #2c3e50;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    .btn:hover {
+      background: #3e5a70;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-secondary {
+      background: #e67e22;
+    }
+
+    .btn-secondary:hover {
+      background: #d35400;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #2c3e50;
+      border: 2px solid #2c3e50;
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: #2c3e50;
+      color: #fff;
+    }
+
+    /* ===== Адаптив ===== */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        height: auto;
+      }
+      .sidebar {
+        width: 100%;
+        padding: 16px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        overflow-y: visible;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      }
+      .sidebar h2 {
+        margin: 0;
+        border: none;
+        padding: 0;
+        font-size: 18px;
+      }
+      .topic-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .topic-item {
+        padding: 6px 14px;
+        font-size: 14px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+      }
+      .topic-item.active {
+        border-bottom-color: #f1c40f;
+      }
+      .main {
+        padding: 20px;
+      }
+      .article h1 {
+        font-size: 28px;
+      }
+      .interactive-section .btn-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar h2 {
+        font-size: 16px;
+      }
+      .topic-item {
+        font-size: 13px;
+        padding: 4px 10px;
+      }
+      .main {
+        padding: 14px;
+      }
+      .article h1 {
+        font-size: 24px;
+      }
+      .definition-box {
+        padding: 12px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Боковая панель -->
+  <nav class="sidebar">
+    <h2>🎵 Музыкальный учебник</h2>
+    <ul class="topic-list">
+      <li class="topic-item active">Урок 1. Высота и нотный стан</li>
+      <li class="topic-item">Урок 2. Длительности и паузы</li>
+      <li class="topic-item">Урок 3. Знаки альтерации</li>
+      <li class="topic-item">Урок 4. Размер и такт <span class="badge">скоро</span></li>
+      <li class="topic-item">Урок 5. Интервалы</li>
+      <li class="topic-item">Урок 6. Гаммы</li>
+    </ul>
+  </nav>
+
+  <!-- Основное содержимое -->
+  <main class="main">
+    <article class="article">
+
+      <h1>УРОК 1. ВЫСОТА И НОТОНОСЕЦ</h1>
+      <p class="subhead">Знакомство с нотным станом, ключами и первыми нотами</p>
+
+      <!-- Раздел 1 -->
+      <h2>Что такое высота звука</h2>
+      <p>Звуки бывают <strong>высокими</strong> и <strong>низкими</strong>. Это их свойство называется <strong>высотой</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Высота звука</strong> — это его положение в звукоряде от самого низкого до самого высокого.</p>
+      </div>
+
+      <p>На фортепиано высота меняется слева направо: чем левее клавиша, тем звук ниже; чем правее — тем выше.</p>
+
+      <div class="image-placeholder">
+        <span>🎹</span>
+        <strong>Клавиатура фортепиано</strong><br>
+        <small>с подписями «НИЖЕ» (слева) и «ВЫШЕ» (справа) и стрелкой направления</small>
+      </div>
+
+      <!-- Раздел 2 -->
+      <h2>Как записывают высоту: нотный стан</h2>
+      <p>Для записи звуков используют <strong>нотный стан</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Нотный стан</strong> — это пять параллельных горизонтальных линеек, на которых размещаются ноты.</p>
+      </div>
+
+      <p>Ноты пишутся:</p>
+      <ul style="margin: 8px 0 16px 24px;">
+        <li><strong>на линейках</strong> (кружок лежит на линии);</li>
+        <li><strong>между линейками</strong> (кружок находится в промежутке).</li>
+      </ul>
+      <p>Чем выше нота на стане — тем выше она звучит. Это главное правило.</p>
+      <p>Если звук выходит за пределы пяти линеек, используются <strong>добавочные линейки</strong> — короткие отрезки, которые пририсовывают сверху или снизу.</p>
+
+      <div class="image-placeholder">
+        <span>🎵</span>
+        <strong>Нотный стан с нотами</strong><br>
+        <small>на линейке, между линейками, на добавочных линейках — каждый случай подписан</small>
+      </div>
+
+      <!-- Раздел 3 -->
+      <h2>Ключи — ориентиры, которые избавляют от путаницы</h2>
+      <p>Представьте, что у нас есть только нотный стан и добавочные линейки. Если не знать, с какой ноты начинать отсчёт, то одна и та же позиция (например, вторая линейка) может означать разные звуки. Пришлось бы рисовать бесконечное количество добавочных линий, чтобы указать высоту каждой ноты. Это сделало бы запись громоздкой и неудобной.</p>
+      <p>Чтобы избежать этого, в начале каждого нотного стана ставят <strong>ключ</strong>.</p>
+
+      <div class="definition-box">
+        <p><strong>Ключ</strong> — это знак, который указывает, какой ноте соответствует каждая линейка и промежуток между ними. Ключ даёт точную систему отсчёта.</p>
+      </div>
+
+      <h3>Скрипичный ключ (ключ Соль)</h3>
+      <p>Используется для средних и высоких звуков. Его завиток охватывает <strong>вторую линейку</strong> — на ней пишется нота <strong>соль</strong> первой октавы. От неё отсчитываются все остальные ноты.</p>
+
+      <div class="image-placeholder">
+        <span>🎼</span>
+        <strong>Скрипичный ключ</strong><br>
+        <small>крупно, стрелка ко второй линейке, подпись «соль»</small>
+      </div>
+
+      <h3>Басовый ключ (ключ Фа)</h3>
+      <p>Применяется для низких звуков. Его изогнутая линия начинается на <strong>четвёртой линейке</strong> — на ней пишется нота <strong>фа</strong> малой октавы.</p>
+
+      <div class="image-placeholder">
+        <span>🎼</span>
+        <strong>Басовый ключ</strong><br>
+        <small>крупно, акцент на четвёртой линейке</small>
+      </div>
+
+      <p>Эти два ключа охватывают почти все ноты, используемые в музыке. На клавиатуре скрипичный ключ соответствует правой половине (звуки от до первой октавы и выше), а басовый — левой половине (от си малой октавы и ниже).</p>
+
+      <div class="image-placeholder">
+        <span>🎹</span>
+        <strong>Клавиатура фортепиано</strong><br>
+        <small>разделена вертикальной чертой между малой и первой октавами. Слева подпись «Басовый ключ», справа — «Скрипичный ключ»</small>
+      </div>
+
+      <!-- Раздел 4: ноты в ключах -->
+      <h2>Ноты в скрипичном ключе</h2>
+      <p>Все ноты в скрипичном ключе располагаются последовательно от нижних добавочных до верхних. Основные позиции:</p>
+      <ul style="margin: 8px 0 16px 24px; columns: 2;">
+        <li>добавочная снизу — <strong>до¹</strong></li>
+        <li>между 1-й и 2-й — <strong>ре¹</strong></li>
+        <li>на 2-й линейке — <strong>ми¹</strong></li>
+        <li>между 2-й и 3-й — <strong>фа¹</strong></li>
+        <li>на 3-й линейке — <strong>соль¹</strong></li>
+        <li>между 3-й и 4-й — <strong>ля¹</strong></li>
+        <li>на 4-й линейке — <strong>си¹</strong></li>
+        <li>между 4-й и 5-й — <strong>до²</strong></li>
+        <li>на 5-й линейке — <strong>ре²</strong></li>
+      </ul>
+
+      <div class="image-placeholder">
+        <span>🎵</span>
+        <strong>Нотный стан в скрипичном ключе</strong><br>
+        <small>ноты от до¹ до ре², каждая подписана</small>
+      </div>
+
+      <h2>Ноты в басовом ключе</h2>
+      <p>В басовом ключе отсчёт идёт от четвёртой линейки (фа малой октавы). Для начального знакомства достаточно запомнить, что четвёртая линейка — это фа малой октавы, а остальные определяются по шагам.</p>
+
+      <div class="image-placeholder">
+        <span>🎵</span>
+        <strong>Нотный стан в басовом ключе</strong><br>
+        <small>ноты от до большой октавы до до малой, каждая подписана</small>
+      </div>
+
+      <!-- Переход к практике -->
+      <h2>Переход к практике</h2>
+      <p>Теперь, когда вы знакомы с нотным станом и ключами, осталось закрепить это на слух и на глаз. Для этого в приложении есть два упражнения.</p>
+
+      <!-- Интерактивные задания -->
+      <div class="interactive-section">
+        <h3>🎯 Интерактивные задания</h3>
+
+        <div style="margin-bottom: 20px;">
+          <h4 style="margin: 0 0 6px; font-weight: 600;">«Нотный лифт»</h4>
+          <p style="margin: 0 0 10px;">На экране появляется нота, поставленная на стан (правильно или с ошибкой). Вам нужно перетащить её на верную позицию. Если вы ошиблись — нота съезжает вниз и звучит чуть ниже, чем надо. Добейтесь точного совпадения.</p>
+          <div class="btn-group">
+            <button class="btn">Начать упражнение</button>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="margin: 0 0 6px; font-weight: 600;">«Клавиатура-подсказка»</h4>
+          <p style="margin: 0 0 10px;">Одновременно показаны нотный стан и клавиатура. Кликните по любой ноте на стане — она прозвучит, а соответствующая клавиша на пианино подсветится. Это поможет вам связать рисунок ноты с реальным звуком и клавишей.</p>
+          <div class="btn-group">
+            <button class="btn btn-secondary">Открыть тренажёр</button>
+            <button class="btn btn-outline">Слушать пример</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Итог -->
+      <h2>Коротко о главном</h2>
+      <ul style="margin: 8px 0 16px 24px;">
+        <li><strong>Высота</strong> звука — его положение от низкого к высокому. На стане оно передаётся вертикальным расположением ноты.</li>
+        <li><strong>Нотный стан</strong> (5 линеек) — основа для записи.</li>
+        <li><strong>Ключи</strong> (скрипичный и басовый) — задают систему отсчёта, избавляя от бесконечных добавочных линий.</li>
+        <li>Навык чтения нот вырабатывается через постоянное сопоставление видимого и слышимого. Используйте интерактивы, чтобы быстрее освоиться.</li>
+      </ul>
+
+      <p style="margin-top: 24px; font-style: italic; color: #4a5f6e;">Теперь переходите к упражнениям и тренируйтесь.</p>
+
+    </article>
+  </main>
+
+</body>
+</html>

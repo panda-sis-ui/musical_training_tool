@@ -1,22 +1,21 @@
-// 1. Импорты
-// ------------------------------------------------------------------
+import { Link } from 'react-router-dom';
 import styles from './Header.module.css';
 
-// 2. Интерфейс пропсов – принимает только заголовок
-// ------------------------------------------------------------------
 interface HeaderProps {
-  /** Заголовок, который будет отображаться */
   title: string;
 }
 
-// 3. Компонент – шапка с заголовком и иконкой меню (пока не функциональна)
-// ------------------------------------------------------------------
 export default function Header({ title }: HeaderProps) {
   return (
     <div className={styles.header}>
+      <Link to="/" className={styles.homeLink} title="На главную">
+        <span className={styles.homeIcon}>🏠</span>
+      </Link>
       <span className={styles.title}>{title}</span>
-      <div className={styles.button_menu}>
-        <span className={styles.hamburger}>☰</span>
+      <div className={styles.rightGroup}>
+        <div className={styles.button_menu}>
+          <span className={styles.hamburger}>☰</span>
+        </div>
       </div>
     </div>
   );

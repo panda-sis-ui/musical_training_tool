@@ -4,6 +4,11 @@
   justify-content: center;
   gap: 30px;
   padding: 10px;
+  cursor: pointer; 
+  transition: transform 0.1s;  
+}
+.heroContainer:active {
+  transform: scale(0.98);    /* эффект нажатия на весь блок */
 }
 
 .imageWrapper {
@@ -34,7 +39,7 @@
 
 /* Текст по дуге – настройки шрифта */
 .arcText {
-  font-family: 'Arial', sans-serif;
+  font-family: 'Nunito', sans-serif;
   letter-spacing: 1px;
   text-shadow: 0 0 4px rgba(255,255,255,0.8);
 }

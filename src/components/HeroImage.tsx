@@ -1,13 +1,9 @@
 import styles from './HeroImage.module.css';
 
 interface HeroImageProps {
-  /** Картинка персонажа */
   image: string;
-  /** Подпись по дуге над персонажем */
   caption: string;
-  /** Клик по облачку мыслей (например, повторить звук) */
-  onCloudClick?: () => void;
-  /** Что показать в облачке вместо 💭 (результат ответа) */
+  onCloudClick?: () => void;        // функция для воспроизведения ноты
   resultMessage?: { text: string; isCorrect: boolean } | null;
 }
 
@@ -21,10 +17,10 @@ export default function HeroImage({ image, caption, onCloudClick, resultMessage 
   );
 
   return (
-    <div className={styles.heroContainer}>
+    // Добавляем onClick сюда – на весь блок
+    <div className={styles.heroContainer} onClick={onCloudClick}>
       <div className={styles.imageWrapper}>
         <img src={image} alt={caption} className={styles.avatar} />
-        {/* SVG с текстом по дуге */}
         <svg className={styles.arcSvg} viewBox="0 0 300 300" preserveAspectRatio="none">
           <path id="textArc" d="M 30 150 A 120 120 0 1 1 270 150" fill="none" stroke="none" />
           <text className={styles.arcText} fontSize="24" fontWeight="bold" fill="#2c3e50">
@@ -34,8 +30,8 @@ export default function HeroImage({ image, caption, onCloudClick, resultMessage 
           </text>
         </svg>
       </div>
-      {/* Облачко с эмодзи – кликабельно */}
-      <div className={styles.cloud} onClick={onCloudClick}>
+      {/* Убираем onClick с облачка – событие всплывёт к родителю */}
+      <div className={styles.cloud}>
         {cloudContent}
         <div className={styles.cloudTail}></div>
       </div>

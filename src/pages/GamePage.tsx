@@ -29,7 +29,6 @@ export default function GamePage() {
   return (
     <div className={styles.container}>
       <Header title="Угадай ноту" />
-      <Link to="/" className={styles.homeLink}>🏠 На главную</Link>
 
       <div className={styles.main}>
         <div className={styles.heroColumn}>
