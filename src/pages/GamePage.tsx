@@ -28,21 +28,30 @@ export default function GamePage() {
 
   return (
     <div className={styles.container}>
-      <Header title="Угадай ноту" />
-
-      <div className={styles.main}>
-        <div className={styles.heroColumn}>
-          <HeroImage
-            image={MOOD_IMAGES[game.mood]}
-            caption="Нажми, чтобы услышать"
-            onCloudClick={game.playTargetNote}
-            resultMessage={resultMessage}
-          />
-          <div className={styles.controls}>
-            <ScoreCounter score={game.score} />
-            <NewNoteButton onNewNote={game.startNewRound} />
-          </div>
+    <Header title="Угадай ноту" />
+    <div className={styles.main}>
+      <div className={styles.heroColumn}>
+        <HeroImage
+          image={MOOD_IMAGES[game.mood]}
+          caption="Нажми, чтобы услышать"
+          onCloudClick={game.playTargetNote}
+          resultMessage={resultMessage}
+          hintName={game.hintName}   // ← передаём название подсказки
+        />
+        <div className={styles.controls}>
+          <ScoreCounter score={game.score} />
+          <NewNoteButton onNewNote={game.startNewRound} />
+          {/* Новая кнопка подсказки */}
+          <button
+            className={styles.hintButton}
+            onClick={game.requestHint}
+            disabled={game.hintsLeft === 0 || !game.leavesVisible || game.lastResult !== null}
+            title={game.hintsLeft === 0 ? 'Подсказки закончились' : 'Показать название ноты'}
+          >
+            💡 {game.hintsLeft > 0 ? game.hintsLeft : '0'}
+          </button>
         </div>
+      </div>
 
         <div className={styles.staffWrapper}>
           <HiddenNote

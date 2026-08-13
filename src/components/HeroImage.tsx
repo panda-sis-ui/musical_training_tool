@@ -3,21 +3,34 @@ import styles from './HeroImage.module.css';
 interface HeroImageProps {
   image: string;
   caption: string;
-  onCloudClick?: () => void;        // функция для воспроизведения ноты
+  onCloudClick?: () => void;
   resultMessage?: { text: string; isCorrect: boolean } | null;
+  hintName?: string | null;   // новое поле
 }
 
-export default function HeroImage({ image, caption, onCloudClick, resultMessage }: HeroImageProps) {
-  const cloudContent = resultMessage ? (
-    <span style={{ color: resultMessage.isCorrect ? 'green' : 'red', fontSize: '1.8rem' }}>
-      {resultMessage.text}
-    </span>
-  ) : (
-    <span className={styles.cloudText}>💭</span>
-  );
+export default function HeroImage({ image, caption, onCloudClick, resultMessage, hintName }: HeroImageProps) {
+  // Определяем содержимое облачка с приоритетом:
+  // 1. Результат (если есть)
+  // 2. Подсказка (если активна)
+  // 3. По умолчанию 💭
+  let cloudContent: React.ReactNode;
+  if (resultMessage) {
+    cloudContent = (
+      <span style={{ color: resultMessage.isCorrect ? 'green' : 'red', fontSize: '1.8rem' }}>
+        {resultMessage.text}
+      </span>
+    );
+  } else if (hintName) {
+    cloudContent = (
+      <span className={styles.hintText}>
+        {hintName}
+      </span>
+    );
+  } else {
+    cloudContent = <span className={styles.cloudText}>💭</span>;
+  }
 
   return (
-    // Добавляем onClick сюда – на весь блок
     <div className={styles.heroContainer} onClick={onCloudClick}>
       <div className={styles.imageWrapper}>
         <img src={image} alt={caption} className={styles.avatar} />
@@ -30,7 +43,6 @@ export default function HeroImage({ image, caption, onCloudClick, resultMessage 
           </text>
         </svg>
       </div>
-      {/* Убираем onClick с облачка – событие всплывёт к родителю */}
       <div className={styles.cloud}>
         {cloudContent}
         <div className={styles.cloudTail}></div>

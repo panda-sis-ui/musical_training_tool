@@ -1,3 +1,5 @@
+/* src/pages/IntervalGamePage.module.css */
+
 .container {
   display: flex;
   flex-direction: column;
@@ -40,11 +42,14 @@
   max-width: 400px;
 }
 
-.pianoWrapper {
+.buttonsWrapper {
   flex: 0 0 auto;
-  min-height: 200px;
   padding: 8px;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
 }
+
 .hintButton {
   margin: 10px auto;
   display: inline-block;
@@ -52,7 +57,7 @@
   font-size: 20px;
   border-radius: 8px;
   border: none;
-  background: #f39c12; /* жёлто-оранжевый */
+  background: #f39c12;
   color: white;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
@@ -61,18 +66,43 @@
   height: auto;
 }
 
+.settingsButton {
+  margin: 10px auto;
+  display: inline-block;
+  padding: 12px 16px;
+  font-size: 24px;
+  border-radius: 8px;
+  border: none;
+  background: #7f8c8d;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  white-space: nowrap;
+  height: auto;
+  line-height: 1;
+}
+
+.settingsButton:hover {
+  background: #95a5a6;
+}
+.settingsButton:active {
+  transform: scale(0.95);
+}
+
 .hintButton:hover:not(:disabled) {
   background: #e67e22;
 }
+
 .hintButton:active:not(:disabled) {
   transform: scale(0.95);
 }
+
 .hintButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Адаптация */
 @media (max-width: 600px) {
   .hintButton {
     padding: 6px 12px;
@@ -80,6 +110,7 @@
     margin: 5px auto;
   }
 }
+
 @media (max-width: 400px) {
   .hintButton {
     padding: 4px 8px;

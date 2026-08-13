@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react';
-import { getRandomNote } from '../lib/notes';
+import { useState, useCallback, useRef } from 'react';
+import { getRandomNote, getRussianNoteName } from '../lib/notes';
 import { playNote } from '../lib/audio';
 
-/** Настроение персонажа — страница сама решает, какой картинкой его показать */
 export type HeroMood = 'idle' | 'listening' | 'happy' | 'sad';
 
 export interface GuessResult {
@@ -10,21 +9,21 @@ export interface GuessResult {
   isCorrect: boolean;
 }
 
-/**
- * Логика игры «Угадай ноту»: загаданная нота, счёт, реакция на ответы.
- * Страница отвечает только за вёрстку и картинки.
- */
 export function useGuessNoteGame() {
   const [score, setScore] = useState(0);
   const [isNoteGuessed, setIsNoteGuessed] = useState(false);
   const [targetNote, setTargetNote] = useState<string>(getRandomNote);
   const [lastResult, setLastResult] = useState<GuessResult | null>(null);
   const [mood, setMood] = useState<HeroMood>('idle');
-  /** Меняется с каждым раундом — удобно как key для сброса дочерних компонентов */
   const [roundId, setRoundId] = useState(0);
   const [leavesVisible, setLeavesVisible] = useState(true);
 
-  /** Ответ игрока: нажата нота на пианино */
+  // --- Состояния для подсказки ---
+  const [hintsLeft, setHintsLeft] = useState(3);
+  const [hintName, setHintName] = useState<string | null>(null);
+  const hintTimerRef = useRef<number | null>(null);
+
+  // --- Обработчик нажатия на клавишу ---
   const handleNotePlay = useCallback(
     (playedNote: string) => {
       const isCorrect = playedNote === targetNote;
@@ -44,7 +43,7 @@ export function useGuessNoteGame() {
     [targetNote, isNoteGuessed],
   );
 
-  /** Новый раунд: загадать и проиграть новую ноту */
+  // --- Начать новый раунд ---
   const startNewRound = useCallback(() => {
     const newNote = getRandomNote();
     setTargetNote(newNote);
@@ -53,17 +52,48 @@ export function useGuessNoteGame() {
     setMood('idle');
     setRoundId((prev) => prev + 1);
     setLeavesVisible(true);
+
+    // Сброс подсказки
+    if (hintTimerRef.current) {
+      clearTimeout(hintTimerRef.current);
+      hintTimerRef.current = null;
+    }
+    setHintName(null);
+
     playNote(newNote);
   }, []);
 
-  /** Повторить звучание загаданной ноты */
+  // --- Воспроизвести целевую ноту ---
   const playTargetNote = useCallback(() => {
     playNote(targetNote);
     setMood('listening');
   }, [targetNote]);
 
+  // --- Убрать листья ---
   const hideLeaves = useCallback(() => setLeavesVisible(false), []);
 
+  // --- Запросить подсказку ---
+  const requestHint = useCallback(() => {
+    // Условия: листья видны, нет результата, остались подсказки
+    if (!leavesVisible || lastResult !== null || hintsLeft <= 0) {
+      return;
+    }
+
+    setHintsLeft((prev) => prev - 1);
+    const russianName = getRussianNoteName(targetNote);
+    setHintName(russianName);
+
+    // Автоматически скрыть через 2 секунды
+    if (hintTimerRef.current) {
+      clearTimeout(hintTimerRef.current);
+    }
+    hintTimerRef.current = window.setTimeout(() => {
+      setHintName(null);
+      hintTimerRef.current = null;
+    }, 2000);
+  }, [leavesVisible, lastResult, hintsLeft, targetNote]);
+
+  // --- Возвращаемое значение ---
   return {
     score,
     targetNote,
@@ -75,5 +105,8 @@ export function useGuessNoteGame() {
     startNewRound,
     playTargetNote,
     hideLeaves,
+    hintsLeft,
+    hintName,
+    requestHint,
   };
 }

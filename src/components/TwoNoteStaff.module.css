@@ -1,0 +1,90 @@
+/* HiddenNote.module.css */
+.container {
+  display: inline-block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  min-width: 120px;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fcf8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.noteWrapper {
+  position: relative;
+  width: 100%;
+  display: inline-block;
+}
+
+/* Слой листьев – обрезает выступающие части */
+.leavesLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+
+/* Единое изображение – заполняет всю область, сохраняя пропорции */
+.leavesImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* заполняет контейнер, обрезая лишнее */
+  display: block;
+  pointer-events: none;
+}
+
+/* Кнопка очистки – поверх всего */
+.clearButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #2c3e50;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.clearButton:hover {
+  transform: scale(1.1);
+  background: #f0f0f0;
+}
+
+.clearButton:active {
+  transform: scale(0.9);
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 600px) {
+  .container {
+    min-width: 80px;
+  }
+  .clearButton {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    top: 4px;
+    right: 4px;
+  }
+}
