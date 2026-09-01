@@ -12,7 +12,6 @@ import foxIdle from '../assets/fox1.webp';
 import foxListening from '../assets/fox3.webp';
 import foxHappy from '../assets/fox4.webp';
 import foxSad from '../assets/fox5.webp';
-import type { IntervalGameSettings } from '../types/settings';
 
 const MOOD_IMAGES: Record<HeroMood, string> = {
   idle: foxIdle,
@@ -74,7 +73,7 @@ export default function IntervalGamePage() {
         </div>
 
         <div className={styles.staffWrapper}>
-          {showStaff ? (
+          {showStaff && game.upperNote ? (
             <TwoNoteStaff
               lowerNote={game.lowerNote}
               upperNote={game.upperNote}

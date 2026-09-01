@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import styles from './GamePage.module.css';
 import Piano from '../components/Piano';
 import Header from '../components/Header';

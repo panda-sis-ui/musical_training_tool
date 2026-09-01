@@ -1,19 +1,7 @@
 import React from 'react';
 import styles from './IntervalSettingsModal.module.css';
-import { ALL_INTERVALS, DEFAULT_INTERVAL_NAMES } from '../lib/intervals';
+import { ALL_INTERVALS } from '../lib/intervals';
 import type { IntervalGameSettings } from '../types/settings';
-
-export interface IntervalGameSettings {
-  intervalNames: string[];
-  tonicFixed: boolean;
-  answerMode: 'buttons' | 'piano';
-}
-
-const defaultSettings: IntervalGameSettings = {
-  intervalNames: DEFAULT_INTERVAL_NAMES,
-  tonicFixed: true,
-  answerMode: 'buttons',
-};
 
 interface SettingsModalProps {
   isOpen: boolean;

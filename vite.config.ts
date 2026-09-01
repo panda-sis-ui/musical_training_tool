@@ -9,4 +9,9 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] })
   ],
   base: '/musical_training_tool/',
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.ts',
+  },
 })
