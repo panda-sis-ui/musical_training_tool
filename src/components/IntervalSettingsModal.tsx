@@ -51,8 +51,8 @@ export default function IntervalSettingsModal({
                 type="radio"
                 name="answerMode"
                 value="buttons"
-                checked={localSettings.answerMode === 'buttons'}
-                onChange={() => setLocalSettings({ ...localSettings, answerMode: 'buttons' })}
+                checked={true}
+                readOnly
               />
               Кнопки с названиями
             </label>
@@ -61,8 +61,8 @@ export default function IntervalSettingsModal({
                 type="radio"
                 name="answerMode"
                 value="piano"
-                checked={localSettings.answerMode === 'piano'}
-                onChange={() => setLocalSettings({ ...localSettings, answerMode: 'piano' })}
+                checked={false}
+                disabled
               />
               Игра на пианино (скоро)
             </label>

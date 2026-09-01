@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import * as audio from '../lib/audio';
 import { getRandomInterval, DEFAULT_INTERVAL_NAMES, type Interval } from '../lib/intervals';
-import { createIntervalPlayer } from '../lib/audio';
 import type { IntervalGameSettings } from '../types/settings';
 
 export type HeroMood = 'idle' | 'listening' | 'happy' | 'sad';
@@ -23,6 +23,11 @@ const ALL_NOTES = [
 ] as const;
 
 const NOTE_SEQUENCE = [...ALL_NOTES] as string[];
+const MAX_NOTE = 'G5';
+
+function isWithinPlayableRange(note: string): boolean {
+  return NOTE_SEQUENCE.indexOf(note) !== -1 && NOTE_SEQUENCE.indexOf(note) <= NOTE_SEQUENCE.indexOf(MAX_NOTE);
+}
 
 function normalizeIntervalNames(intervalNames: unknown): string[] {
   if (!Array.isArray(intervalNames)) {
@@ -41,7 +46,7 @@ function normalizeSettings(value: unknown): IntervalGameSettings {
   }
 
   const candidate = value as Partial<IntervalGameSettings>;
-  const answerMode = candidate.answerMode === 'piano' ? 'piano' : 'buttons';
+  const answerMode = 'buttons';
 
   return {
     intervalNames: normalizeIntervalNames(candidate.intervalNames),
@@ -126,7 +131,10 @@ export function useIntervalGame() {
   const intervalPlayerRef = useRef<ReturnType<typeof createIntervalPlayer> | null>(null);
 
   if (!intervalPlayerRef.current) {
-    intervalPlayerRef.current = createIntervalPlayer({ delayMs: 500 });
+    intervalPlayerRef.current = audio.createIntervalPlayer({
+      delayMs: 500,
+      notePlayer: (note) => audio.playNote(note),
+    });
   }
 
   useEffect(() => {
@@ -145,45 +153,68 @@ export function useIntervalGame() {
   }, []);
 
   // --- Генерация нового интервала ---
-  const generateInterval = useCallback((currentSettings: IntervalGameSettings = settings) => {
-    const normalizedSettings = normalizeSettings(currentSettings);
-    const interval = getRandomInterval(normalizedSettings.intervalNames);
+  const generateInterval = useCallback(
+    (currentSettings: IntervalGameSettings = settings, options?: { autoPlay?: boolean }) => {
+      const normalizedSettings = normalizeSettings(currentSettings);
+      const interval = getRandomInterval(normalizedSettings.intervalNames);
 
-    const candidateLowerNotes = normalizedSettings.tonicFixed ? ['C4'] : [...NOTE_SEQUENCE];
-    const validLowerNotes = candidateLowerNotes.filter((note) => {
-      const lowerIndex = NOTE_SEQUENCE.indexOf(note);
-      return lowerIndex !== -1 && lowerIndex + interval.semitones < NOTE_SEQUENCE.length;
-    });
+      const candidateLowerNotes = normalizedSettings.tonicFixed ? ['C4'] : [...NOTE_SEQUENCE];
+      const validLowerNotes = candidateLowerNotes.filter((note) => {
+        const lowerIndex = NOTE_SEQUENCE.indexOf(note);
+        if (lowerIndex === -1) return false;
 
-    const safeLowerNote = validLowerNotes.length > 0
-      ? validLowerNotes[Math.floor(Math.random() * validLowerNotes.length)]
-      : 'C4';
+        const upperIndex = lowerIndex + interval.semitones;
+        if (upperIndex >= NOTE_SEQUENCE.length) return false;
 
-    const lowerIndex = NOTE_SEQUENCE.indexOf(safeLowerNote);
-    const upperIndex = lowerIndex === -1 ? -1 : lowerIndex + interval.semitones;
-    const upperNote = upperIndex >= 0 && upperIndex < NOTE_SEQUENCE.length
-      ? NOTE_SEQUENCE[upperIndex]
-      : NOTE_SEQUENCE[Math.min(NOTE_SEQUENCE.length - 1, lowerIndex === -1 ? 0 : lowerIndex + interval.semitones)];
+        const upperNote = NOTE_SEQUENCE[upperIndex];
+        return upperNote && isWithinPlayableRange(upperNote);
+      });
 
-    setTargetInterval(interval);
-    setLowerNote(safeLowerNote);
-    setUpperNote(upperNote);
+      const safeLowerNote = validLowerNotes.length > 0
+        ? validLowerNotes[Math.floor(Math.random() * validLowerNotes.length)]
+        : 'C4';
 
-    setLastResult(null);
-    setIsCorrectGuessed(false);
-    setMood('idle');
-    setLeavesVisible(true);
-    setRoundId(prev => prev + 1);
+      const lowerIndex = NOTE_SEQUENCE.indexOf(safeLowerNote);
+      const upperIndex = lowerIndex === -1 ? -1 : lowerIndex + interval.semitones;
+      const upperNote = upperIndex >= 0 && upperIndex < NOTE_SEQUENCE.length
+        ? NOTE_SEQUENCE[upperIndex]
+        : NOTE_SEQUENCE[Math.min(NOTE_SEQUENCE.length - 1, lowerIndex === -1 ? 0 : lowerIndex + interval.semitones)];
 
-    if (hintTimerRef.current) {
-      clearTimeout(hintTimerRef.current);
-      hintTimerRef.current = null;
-    }
-    intervalPlayerRef.current?.cancel();
-    setHintName(null);
+      if (!isWithinPlayableRange(upperNote)) {
+        const fallbackIndex = Math.min(
+          NOTE_SEQUENCE.indexOf(MAX_NOTE),
+          Math.max(0, NOTE_SEQUENCE.indexOf(safeLowerNote) + interval.semitones),
+        );
+        const fallbackNote = NOTE_SEQUENCE[fallbackIndex] ?? 'G5';
+        setUpperNote(fallbackNote);
+        return { lowerNote: safeLowerNote, upperNote: fallbackNote };
+      }
 
-    playInterval(safeLowerNote, upperNote);
-  }, [settings, playInterval]);
+      setTargetInterval(interval);
+      setLowerNote(safeLowerNote);
+      setUpperNote(upperNote);
+
+      setLastResult(null);
+      setIsCorrectGuessed(false);
+      setMood('idle');
+      setLeavesVisible(true);
+      setRoundId(prev => prev + 1);
+
+      if (hintTimerRef.current) {
+        clearTimeout(hintTimerRef.current);
+        hintTimerRef.current = null;
+      }
+      intervalPlayerRef.current?.cancel();
+      setHintName(null);
+
+      if (options?.autoPlay !== false) {
+        playInterval(safeLowerNote, upperNote);
+      }
+
+      return { lowerNote: safeLowerNote, upperNote };
+    },
+    [settings, playInterval],
+  );
 
   // --- Повторное воспроизведение текущего интервала ---
   const replayInterval = useCallback(() => {
@@ -215,8 +246,8 @@ export function useIntervalGame() {
 
   // --- Следующий раунд ---
   const startNewRound = useCallback(() => {
-    generateInterval();
-  }, [generateInterval]);
+    generateInterval(settings);
+  }, [generateInterval, settings]);
 
   // --- Подсказка ---
   const requestHint = useCallback(() => {
@@ -231,8 +262,8 @@ export function useIntervalGame() {
   }, [targetInterval, isCorrectGuessed, hintsLeft]);
 
   // --- Инициализация игры ---
-  const initGame = useCallback(() => {
-    generateInterval(settings);
+  const initGame = useCallback((options?: { autoPlay?: boolean }) => {
+    generateInterval(settings, options);
   }, [generateInterval, settings]);
 
   // --- Убрать листья (вручную или после угадывания) ---

@@ -65,6 +65,23 @@ describe('useIntervalGame', () => {
     expect(result.current.mood).toBe('sad');
   });
 
+  it('не даёт появляться нотам выше G5 в интервале', () => {
+    vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
+      name: 'октава',
+      shortName: '8',
+      semitones: 12,
+    });
+
+    const { result } = renderHook(() => useIntervalGame());
+
+    act(() => {
+      result.current.initGame();
+    });
+
+    expect(result.current.lowerNote <= 'G5').toBe(true);
+    expect(result.current.upperNote <= 'G5').toBe(true);
+  });
+
   it('сохраняет настройки в localStorage и применяет их', () => {
     vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
       name: 'кварта',
@@ -122,6 +139,29 @@ describe('useIntervalGame', () => {
     expect(result.current.hintName).toBeNull();
   });
 
+  it('воспроизводит оба звука при новом раунде', () => {
+    const playNoteSpy = vi.spyOn(audioModule, 'playNote');
+    vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
+      name: 'терция',
+      shortName: '3',
+      semitones: 4,
+    });
+
+    const { result } = renderHook(() => useIntervalGame());
+
+    act(() => {
+      result.current.startNewRound();
+    });
+
+    expect(playNoteSpy).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+
+    expect(playNoteSpy).toHaveBeenCalledTimes(2);
+  });
+
   it('перезапускает воспроизведение интервала без наложения второго звука', () => {
     vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
       name: 'терция',
@@ -140,10 +180,25 @@ describe('useIntervalGame', () => {
 
     act(() => {
       result.current.replayInterval();
+      result.current.replayInterval();
     });
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
-    expect(setTimeoutSpy).toHaveBeenCalledTimes(2);
+    expect(setTimeoutSpy).toHaveBeenCalledTimes(3);
+  });
+
+  it('сворачивает неактуальный режим пианино в безопасный режим кнопок', () => {
+    const { result } = renderHook(() => useIntervalGame());
+
+    act(() => {
+      result.current.updateSettings({
+        intervalNames: ['терция'],
+        tonicFixed: true,
+        answerMode: 'piano',
+      });
+    });
+
+    expect(result.current.settings.answerMode).toBe('buttons');
   });
 
   it('нормализует невалидные настройки интервалов и не ломает раунд', () => {
