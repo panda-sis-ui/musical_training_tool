@@ -75,8 +75,8 @@ export default function IntervalGamePage() {
         <div className={styles.staffWrapper}>
           {showStaff && game.upperNote ? (
             <TwoNoteStaff
-              lowerNote={game.lowerNote}
-              upperNote={game.upperNote}
+              lowerNote={game.roundDirection === 'down' ? game.upperNote : game.lowerNote}
+              upperNote={game.roundDirection === 'down' ? game.lowerNote : game.upperNote}
               visible={game.leavesVisible}
               onClear={game.hideLeaves}
             />

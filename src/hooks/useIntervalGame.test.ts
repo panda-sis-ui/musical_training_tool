@@ -82,6 +82,29 @@ describe('useIntervalGame', () => {
     expect(result.current.upperNote <= 'G5').toBe(true);
   });
 
+  it('генерирует отличающиеся ноты для нисходящего интервала даже при фиксированной тонике', () => {
+    vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
+      name: 'терция',
+      shortName: '3',
+      semitones: 4,
+    });
+
+    const { result } = renderHook(() => useIntervalGame());
+
+    act(() => {
+      result.current.updateSettings({
+        intervalNames: ['терция'],
+        tonicFixed: true,
+        answerMode: 'buttons',
+        direction: 'down',
+      });
+    });
+
+    expect(result.current.lowerNote).not.toBe(result.current.upperNote);
+    expect(result.current.lowerNote).toBeTruthy();
+    expect(result.current.upperNote).toBeTruthy();
+  });
+
   it('сохраняет настройки в localStorage и применяет их', () => {
     vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
       name: 'кварта',
@@ -96,6 +119,7 @@ describe('useIntervalGame', () => {
         intervalNames: ['кварта'],
         tonicFixed: true,
         answerMode: 'buttons',
+        direction: 'down',
       });
     });
 
@@ -103,12 +127,14 @@ describe('useIntervalGame', () => {
       intervalNames: ['кварта'],
       tonicFixed: true,
       answerMode: 'buttons',
+      direction: 'down',
     });
 
     expect(JSON.parse(localStorage.getItem('intervalGameSettings') ?? 'null')).toEqual({
       intervalNames: ['кварта'],
       tonicFixed: true,
       answerMode: 'buttons',
+      direction: 'down',
     });
   });
 
@@ -195,6 +221,7 @@ describe('useIntervalGame', () => {
         intervalNames: ['терция'],
         tonicFixed: true,
         answerMode: 'piano',
+        direction: 'both',
       });
     });
 

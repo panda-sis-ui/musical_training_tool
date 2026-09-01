@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS: IntervalGameSettings = {
   intervalNames: DEFAULT_INTERVAL_NAMES,
   tonicFixed: true,
   answerMode: 'buttons',
+  direction: 'up',
 };
 
 const ALL_NOTES = [
@@ -47,11 +48,15 @@ function normalizeSettings(value: unknown): IntervalGameSettings {
 
   const candidate = value as Partial<IntervalGameSettings>;
   const answerMode = 'buttons';
+  const direction = candidate.direction === 'up' || candidate.direction === 'down' || candidate.direction === 'both'
+    ? candidate.direction
+    : 'up';
 
   return {
     intervalNames: normalizeIntervalNames(candidate.intervalNames),
     tonicFixed: typeof candidate.tonicFixed === 'boolean' ? candidate.tonicFixed : true,
     answerMode,
+    direction,
   };
 }
 
@@ -64,7 +69,8 @@ function isValidSettings(value: unknown): value is IntervalGameSettings {
   return (
     Array.isArray(candidate.intervalNames) &&
     typeof candidate.tonicFixed === 'boolean' &&
-    (candidate.answerMode === 'buttons' || candidate.answerMode === 'piano')
+    (candidate.answerMode === 'buttons' || candidate.answerMode === 'piano') &&
+    (candidate.direction === 'up' || candidate.direction === 'down' || candidate.direction === 'both')
   );
 }
 
@@ -122,6 +128,7 @@ export function useIntervalGame() {
   const [isCorrectGuessed, setIsCorrectGuessed] = useState(false);
   const [mood, setMood] = useState<HeroMood>('idle');
   const [roundId, setRoundId] = useState(0);
+  const [roundDirection, setRoundDirection] = useState<'up' | 'down'>('up');
   const [leavesVisible, setLeavesVisible] = useState(true);
 
   // --- Подсказки ---
@@ -155,44 +162,65 @@ export function useIntervalGame() {
   // --- Генерация нового интервала ---
   const generateInterval = useCallback(
     (currentSettings: IntervalGameSettings = settings, options?: { autoPlay?: boolean }) => {
-      const normalizedSettings = normalizeSettings(currentSettings);
+        const normalizedSettings = normalizeSettings(currentSettings);
       const interval = getRandomInterval(normalizedSettings.intervalNames);
+      const chosenDirection = normalizedSettings.direction === 'both'
+        ? (Math.random() < 0.5 ? 'up' : 'down')
+        : normalizedSettings.direction;
 
-      const candidateLowerNotes = normalizedSettings.tonicFixed ? ['C4'] : [...NOTE_SEQUENCE];
-      const validLowerNotes = candidateLowerNotes.filter((note) => {
-        const lowerIndex = NOTE_SEQUENCE.indexOf(note);
-        if (lowerIndex === -1) return false;
-
-        const upperIndex = lowerIndex + interval.semitones;
-        if (upperIndex >= NOTE_SEQUENCE.length) return false;
-
-        const upperNote = NOTE_SEQUENCE[upperIndex];
-        return upperNote && isWithinPlayableRange(upperNote);
+      const fixedLowerNotes = normalizedSettings.tonicFixed ? ['C4'] : [...NOTE_SEQUENCE];
+      const validNotes = fixedLowerNotes.filter((note) => {
+        const index = NOTE_SEQUENCE.indexOf(note);
+        return index !== -1 && isWithinPlayableRange(note);
       });
 
-      const safeLowerNote = validLowerNotes.length > 0
-        ? validLowerNotes[Math.floor(Math.random() * validLowerNotes.length)]
-        : 'C4';
+      let lowerNoteValue: string;
+      let upperNoteValue: string;
 
-      const lowerIndex = NOTE_SEQUENCE.indexOf(safeLowerNote);
-      const upperIndex = lowerIndex === -1 ? -1 : lowerIndex + interval.semitones;
-      const upperNote = upperIndex >= 0 && upperIndex < NOTE_SEQUENCE.length
-        ? NOTE_SEQUENCE[upperIndex]
-        : NOTE_SEQUENCE[Math.min(NOTE_SEQUENCE.length - 1, lowerIndex === -1 ? 0 : lowerIndex + interval.semitones)];
+      if (chosenDirection === 'down') {
+        const validUpperNotes = NOTE_SEQUENCE.filter((note) => {
+          const index = NOTE_SEQUENCE.indexOf(note);
+          const lowerIndex = index - interval.semitones;
+          return index !== -1 && lowerIndex >= 0 && isWithinPlayableRange(note) && isWithinPlayableRange(NOTE_SEQUENCE[lowerIndex]);
+        });
 
-      if (!isWithinPlayableRange(upperNote)) {
+        const startNote = validUpperNotes.length > 0
+          ? validUpperNotes[Math.floor(Math.random() * validUpperNotes.length)]
+          : 'C4';
+
+        const upperIndex = NOTE_SEQUENCE.indexOf(startNote);
+        const lowerIndex = upperIndex - interval.semitones;
+        upperNoteValue = NOTE_SEQUENCE[upperIndex] ?? startNote;
+        lowerNoteValue = NOTE_SEQUENCE[lowerIndex] ?? NOTE_SEQUENCE[Math.max(0, lowerIndex)];
+      } else {
+        const validStartNotes = validNotes.filter((note) => {
+          const lowerIndex = NOTE_SEQUENCE.indexOf(note);
+          const upperIndex = lowerIndex + interval.semitones;
+          return upperIndex < NOTE_SEQUENCE.length && isWithinPlayableRange(NOTE_SEQUENCE[upperIndex]);
+        });
+
+        const startNote = validStartNotes.length > 0
+          ? validStartNotes[Math.floor(Math.random() * validStartNotes.length)]
+          : 'C4';
+
+        const lowerIndex = NOTE_SEQUENCE.indexOf(startNote);
+        const upperIndex = lowerIndex + interval.semitones;
+        lowerNoteValue = NOTE_SEQUENCE[lowerIndex] ?? startNote;
+        upperNoteValue = NOTE_SEQUENCE[upperIndex] ?? NOTE_SEQUENCE[Math.min(NOTE_SEQUENCE.length - 1, upperIndex)];
+      }
+
+      if (!isWithinPlayableRange(upperNoteValue)) {
         const fallbackIndex = Math.min(
           NOTE_SEQUENCE.indexOf(MAX_NOTE),
-          Math.max(0, NOTE_SEQUENCE.indexOf(safeLowerNote) + interval.semitones),
+          Math.max(0, NOTE_SEQUENCE.indexOf(lowerNoteValue) + interval.semitones),
         );
-        const fallbackNote = NOTE_SEQUENCE[fallbackIndex] ?? 'G5';
-        setUpperNote(fallbackNote);
-        return { lowerNote: safeLowerNote, upperNote: fallbackNote };
+        upperNoteValue = NOTE_SEQUENCE[fallbackIndex] ?? 'G5';
       }
 
       setTargetInterval(interval);
-      setLowerNote(safeLowerNote);
-      setUpperNote(upperNote);
+      setLowerNote(lowerNoteValue);
+      setUpperNote(upperNoteValue);
+      setRoundDirection(chosenDirection);
 
       setLastResult(null);
       setIsCorrectGuessed(false);
@@ -207,11 +235,15 @@ export function useIntervalGame() {
       intervalPlayerRef.current?.cancel();
       setHintName(null);
 
+      const playbackOrder = chosenDirection === 'down'
+        ? [upperNoteValue, lowerNoteValue]
+        : [lowerNoteValue, upperNoteValue];
+
       if (options?.autoPlay !== false) {
-        playInterval(safeLowerNote, upperNote);
+        playInterval(playbackOrder[0], playbackOrder[1]);
       }
 
-      return { lowerNote: safeLowerNote, upperNote };
+      return { lowerNote: lowerNoteValue, upperNote: upperNoteValue };
     },
     [settings, playInterval],
   );
@@ -219,9 +251,10 @@ export function useIntervalGame() {
   // --- Повторное воспроизведение текущего интервала ---
   const replayInterval = useCallback(() => {
     if (lowerNote && upperNote) {
-      playInterval(lowerNote, upperNote);
+      const playbackOrder = roundDirection === 'down' ? [upperNote, lowerNote] : [lowerNote, upperNote];
+      playInterval(playbackOrder[0], playbackOrder[1]);
     }
-  }, [lowerNote, upperNote, playInterval]);
+  }, [lowerNote, upperNote, playInterval, roundDirection]);
 
   // --- Обработка ответа игрока (выбор интервала) ---
   const handleAnswer = useCallback(
@@ -286,6 +319,7 @@ export function useIntervalGame() {
     targetInterval,
     lowerNote,
     upperNote,
+    roundDirection,
     lastResult,
     isCorrectGuessed,
     mood,

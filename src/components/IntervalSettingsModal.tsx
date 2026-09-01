@@ -70,6 +70,42 @@ export default function IntervalSettingsModal({
         </div>
 
         <div className={styles.section}>
+          <h3>Направление интервала</h3>
+          <div className={styles.radioGroup}>
+            <label>
+              <input
+                type="radio"
+                name="direction"
+                value="up"
+                checked={localSettings.direction === 'up'}
+                onChange={() => setLocalSettings({ ...localSettings, direction: 'up' })}
+              />
+              Вверх
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="direction"
+                value="down"
+                checked={localSettings.direction === 'down'}
+                onChange={() => setLocalSettings({ ...localSettings, direction: 'down' })}
+              />
+              Вниз
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="direction"
+                value="both"
+                checked={localSettings.direction === 'both'}
+                onChange={() => setLocalSettings({ ...localSettings, direction: 'both' })}
+              />
+              Вверх и вниз
+            </label>
+          </div>
+        </div>
+
+        <div className={styles.section}>
           <h3>Тоника</h3>
           <div className={styles.radioGroup}>
             <label>
