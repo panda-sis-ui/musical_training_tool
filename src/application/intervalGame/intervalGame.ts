@@ -96,10 +96,14 @@ export function applySettingsState(
   newSettings: IntervalGameSettings,
 ): IntervalGameState {
   const normalizedSettings = normalizeSettings(newSettings);
-  return createNextRoundState({
-    ...currentState,
-    settings: normalizedSettings,
-  }, normalizedSettings);
+  const nextRound = createNextRoundState(currentState, normalizedSettings);
+  
+  // Сброс счёта при изменении настроек
+  return {
+    ...nextRound,
+    score: 0,
+    hintsLeft: 3,
+  };
 }
 
 export function requestHintState(

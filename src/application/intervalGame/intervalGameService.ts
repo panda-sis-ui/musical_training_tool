@@ -58,8 +58,11 @@ export class IntervalGameService {
   private scheduleHintClear(): void {
     this.clearHintTimer();
     this.hintTimerRef.current = window.setTimeout(() => {
-      this.dispatch({ type: 'CLEAR_HINT' });
-      this.hintTimerRef.current = null;
+      try {
+        this.dispatch({ type: 'CLEAR_HINT' });
+      } finally {
+        this.hintTimerRef.current = null;
+      }
     }, 2000);
   }
 
@@ -112,12 +115,9 @@ export class IntervalGameService {
 
   updateSettings(newSettings: IntervalGameSettings): void {
     const normalizedSettings = normalizeSettings(newSettings);
-    const currentState = this.getState();
-    const nextState = createNextRoundState(currentState, normalizedSettings);
 
     saveSettings(normalizedSettings);
     this.dispatch({ type: 'SETTINGS', settings: normalizedSettings });
-    this.playInterval(nextState.playbackOrder[0], nextState.playbackOrder[1]);
   }
 
   hideLeaves(): void {

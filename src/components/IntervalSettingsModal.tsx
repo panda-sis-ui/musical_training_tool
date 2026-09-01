@@ -17,14 +17,21 @@ export default function IntervalSettingsModal({
   onSave,
 }: SettingsModalProps) {
   const [localSettings, setLocalSettings] = React.useState<IntervalGameSettings>(settings);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setLocalSettings(settings);
+    setErrorMessage(null);
   }, [settings]);
 
   if (!isOpen) return null;
 
   const handleSave = () => {
+    // Валидация: должен быть выбран хотя бы один интервал
+    if (localSettings.intervalNames.length === 0) {
+      setErrorMessage('Выберите хотя бы один интервал');
+      return;
+    }
     onSave(localSettings);
     onClose();
   };
@@ -36,6 +43,7 @@ export default function IntervalSettingsModal({
         : [...prev.intervalNames, name];
       return { ...prev, intervalNames: newNames };
     });
+    setErrorMessage(null);
   };
 
   return (
@@ -147,11 +155,22 @@ export default function IntervalSettingsModal({
           </div>
         </div>
 
+        {errorMessage && (
+          <div className={styles.errorMessage} style={{ color: '#e74c3c', padding: '10px', marginBottom: '10px', borderRadius: '4px', backgroundColor: '#ffe6e6' }}>
+            ⚠️ {errorMessage}
+          </div>
+        )}
+
         <div className={styles.actions}>
           <button className={styles.cancelButton} onClick={onClose}>
             Отмена
           </button>
-          <button className={styles.saveButton} onClick={handleSave}>
+          <button 
+            className={styles.saveButton} 
+            onClick={handleSave}
+            disabled={localSettings.intervalNames.length === 0}
+            style={{ opacity: localSettings.intervalNames.length === 0 ? 0.5 : 1, cursor: localSettings.intervalNames.length === 0 ? 'not-allowed' : 'pointer' }}
+          >
             Сохранить
           </button>
         </div>

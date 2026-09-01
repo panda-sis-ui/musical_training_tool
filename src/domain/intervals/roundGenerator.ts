@@ -9,6 +9,7 @@ const ALL_NOTES = [
 
 const NOTE_SEQUENCE = [...ALL_NOTES] as string[];
 const MAX_NOTE = 'G5';
+const MAX_NOTE_INDEX = NOTE_SEQUENCE.indexOf(MAX_NOTE);
 
 export type RoundDirection = 'up' | 'down';
 
@@ -20,6 +21,60 @@ export interface GeneratedRound {
   playbackOrder: [string, string];
 }
 
+function isWithinPlayableRange(noteIndex: number): boolean {
+  return noteIndex >= 0 && noteIndex <= MAX_NOTE_INDEX;
+}
+
+function getRandomValidNote(settings: IntervalGameSettings, direction: RoundDirection, interval: Interval): { lower: string; upper: string } {
+  const tonicIndex = settings.tonicFixed ? 0 : Math.floor(Math.random() * (MAX_NOTE_INDEX + 1));
+
+  if (direction === 'down') {
+    // Для нисходящего: находим верхнюю ноту, нижняя = верхняя - интервал
+    const maxUpperIndex = Math.min(MAX_NOTE_INDEX, NOTE_SEQUENCE.length - 1 - interval.semitones);
+    if (maxUpperIndex < interval.semitones) {
+      // Не хватает диапазона - используем fallback
+      return { lower: 'C4', upper: 'E4' };
+    }
+
+    const upperIndex = settings.tonicFixed
+      ? Math.min(tonicIndex + interval.semitones, maxUpperIndex)
+      : Math.floor(Math.random() * (maxUpperIndex - interval.semitones + 1)) + interval.semitones;
+
+    const lowerIndex = upperIndex - interval.semitones;
+
+    if (!isWithinPlayableRange(upperIndex) || !isWithinPlayableRange(lowerIndex)) {
+      return { lower: 'C4', upper: 'E4' };
+    }
+
+    return {
+      lower: NOTE_SEQUENCE[lowerIndex] ?? 'C4',
+      upper: NOTE_SEQUENCE[upperIndex] ?? 'E4',
+    };
+  } else {
+    // Для восходящего: находим нижнюю ноту, верхняя = нижняя + интервал
+    const maxLowerIndex = Math.min(MAX_NOTE_INDEX - interval.semitones, NOTE_SEQUENCE.length - 1 - interval.semitones);
+    if (maxLowerIndex < 0) {
+      // Не хватает диапазона - используем fallback
+      return { lower: 'C4', upper: 'E4' };
+    }
+
+    const lowerIndex = settings.tonicFixed
+      ? tonicIndex
+      : Math.floor(Math.random() * (maxLowerIndex + 1));
+
+    const upperIndex = lowerIndex + interval.semitones;
+
+    if (!isWithinPlayableRange(lowerIndex) || !isWithinPlayableRange(upperIndex)) {
+      return { lower: 'C4', upper: 'E4' };
+    }
+
+    return {
+      lower: NOTE_SEQUENCE[lowerIndex] ?? 'C4',
+      upper: NOTE_SEQUENCE[upperIndex] ?? 'E4',
+    };
+  }
+}
+
 export function buildIntervalRound(settings: IntervalGameSettings): GeneratedRound {
   const normalizedSettings = normalizeSettings(settings);
   const interval = getRandomInterval(normalizedSettings.intervalNames);
@@ -27,64 +82,13 @@ export function buildIntervalRound(settings: IntervalGameSettings): GeneratedRou
     ? (Math.random() < 0.5 ? 'up' : 'down')
     : normalizedSettings.direction;
 
-  const candidateNotes = normalizedSettings.tonicFixed ? ['C4'] : [...NOTE_SEQUENCE];
-  const validNotes = candidateNotes.filter((note) => {
-    const index = NOTE_SEQUENCE.indexOf(note);
-    return index !== -1 && isWithinPlayableRange(note);
-  });
-
-  let lowerNoteValue: string;
-  let upperNoteValue: string;
-
-  if (direction === 'down') {
-    const validUpperNotes = NOTE_SEQUENCE.filter((note) => {
-      const upperIndex = NOTE_SEQUENCE.indexOf(note);
-      const lowerIndex = upperIndex - interval.semitones;
-      return upperIndex !== -1 && lowerIndex >= 0 && isWithinPlayableRange(note) && isWithinPlayableRange(NOTE_SEQUENCE[lowerIndex]);
-    });
-
-    const startNote = validUpperNotes.length > 0
-      ? validUpperNotes[Math.floor(Math.random() * validUpperNotes.length)]
-      : 'C4';
-
-    const upperIndex = NOTE_SEQUENCE.indexOf(startNote);
-    const lowerIndex = upperIndex - interval.semitones;
-    upperNoteValue = NOTE_SEQUENCE[upperIndex] ?? startNote;
-    lowerNoteValue = NOTE_SEQUENCE[lowerIndex] ?? NOTE_SEQUENCE[Math.max(0, lowerIndex)];
-  } else {
-    const validStartNotes = validNotes.filter((note) => {
-      const lowerIndex = NOTE_SEQUENCE.indexOf(note);
-      const upperIndex = lowerIndex + interval.semitones;
-      return upperIndex < NOTE_SEQUENCE.length && isWithinPlayableRange(NOTE_SEQUENCE[upperIndex]);
-    });
-
-    const startNote = validStartNotes.length > 0
-      ? validStartNotes[Math.floor(Math.random() * validStartNotes.length)]
-      : 'C4';
-
-    const lowerIndex = NOTE_SEQUENCE.indexOf(startNote);
-    const upperIndex = lowerIndex + interval.semitones;
-    lowerNoteValue = NOTE_SEQUENCE[lowerIndex] ?? startNote;
-    upperNoteValue = NOTE_SEQUENCE[upperIndex] ?? NOTE_SEQUENCE[Math.min(NOTE_SEQUENCE.length - 1, upperIndex)];
-  }
-
-  if (!isWithinPlayableRange(upperNoteValue)) {
-    const fallbackIndex = Math.min(
-      NOTE_SEQUENCE.indexOf(MAX_NOTE),
-      Math.max(0, NOTE_SEQUENCE.indexOf(lowerNoteValue) + interval.semitones),
-    );
-    upperNoteValue = NOTE_SEQUENCE[fallbackIndex] ?? 'G5';
-  }
+  const { lower: lowerNote, upper: upperNote } = getRandomValidNote(normalizedSettings, direction, interval);
 
   return {
     interval,
-    lowerNote: lowerNoteValue,
-    upperNote: upperNoteValue,
+    lowerNote,
+    upperNote,
     direction,
-    playbackOrder: direction === 'down' ? [upperNoteValue, lowerNoteValue] : [lowerNoteValue, upperNoteValue],
+    playbackOrder: direction === 'down' ? [upperNote, lowerNote] : [lowerNote, upperNote],
   };
-}
-
-function isWithinPlayableRange(note: string): boolean {
-  return NOTE_SEQUENCE.indexOf(note) !== -1 && NOTE_SEQUENCE.indexOf(note) <= NOTE_SEQUENCE.indexOf(MAX_NOTE);
 }

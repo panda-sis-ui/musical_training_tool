@@ -1,6 +1,8 @@
-import { act, renderHook } from '@testing-library/react';
+import React from 'react';
+import { act, render, renderHook } from '@testing-library/react';
 import * as audioModule from '../lib/audio';
 import * as intervalsModule from '../lib/intervals';
+import IntervalGamePage from '../pages/IntervalGamePage';
 import { useIntervalGame } from './useIntervalGame';
 
 describe('useIntervalGame', () => {
@@ -136,6 +138,41 @@ describe('useIntervalGame', () => {
       answerMode: 'buttons',
       direction: 'down',
     });
+  });
+
+  it('не воспроизводит звук при загрузке страницы без пользовательского действия', () => {
+    const playNoteSpy = vi.spyOn(audioModule, 'playNote');
+    vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
+      name: 'терция',
+      shortName: '3',
+      semitones: 4,
+    });
+
+    render(React.createElement(IntervalGamePage));
+
+    expect(playNoteSpy).not.toHaveBeenCalled();
+  });
+
+  it('не воспроизводит звук при изменении настроек', () => {
+    const playNoteSpy = vi.spyOn(audioModule, 'playNote');
+    vi.spyOn(intervalsModule, 'getRandomInterval').mockReturnValue({
+      name: 'терция',
+      shortName: '3',
+      semitones: 4,
+    });
+
+    const { result } = renderHook(() => useIntervalGame());
+
+    act(() => {
+      result.current.updateSettings({
+        intervalNames: ['терция'],
+        tonicFixed: true,
+        answerMode: 'buttons',
+        direction: 'up',
+      });
+    });
+
+    expect(playNoteSpy).not.toHaveBeenCalled();
   });
 
   it('сбрасывает подсказку после таймера и уменьшает количество оставшихся подсказок', () => {

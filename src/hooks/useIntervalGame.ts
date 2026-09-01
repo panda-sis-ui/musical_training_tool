@@ -16,31 +16,29 @@ export function useIntervalGame() {
 
   const hintTimerRef = useRef<number | null>(null);
   const intervalPlayerRef = useRef<ReturnType<typeof audio.createIntervalPlayer> | null>(null);
+  const stateRef = useRef(state);
 
-  // Create service instance (persisted across renders)
-  const serviceRef = useRef(
-    createIntervalGameService({
-      dispatch,
-      getState: () => state,
-      hintTimerRef,
-      intervalPlayerRef,
-    }),
-  );
-
-  // Update service's internal state reference on each render
+  // Keep stateRef in sync with current state
   useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  // Create service instance once (persisted across all renders)
+  const serviceRef = useRef<ReturnType<typeof createIntervalGameService> | null>(null);
+
+  if (!serviceRef.current) {
     serviceRef.current = createIntervalGameService({
       dispatch,
-      getState: () => state,
+      getState: () => stateRef.current,
       hintTimerRef,
       intervalPlayerRef,
     });
-  }, [state]);
+  }
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      serviceRef.current.dispose();
+      serviceRef.current?.dispose();
     };
   }, []);
 

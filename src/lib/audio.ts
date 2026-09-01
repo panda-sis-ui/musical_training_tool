@@ -15,16 +15,21 @@ export async function ensureAudioContext(): Promise<AudioContext | null> {
     const AudioContextClass =
       window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) {
-      console.warn('Web Audio API не поддерживается');
+      console.error('Web Audio API не поддерживается в этом браузере');
       return null;
     }
-    ctx = new AudioContextClass();
+    try {
+      ctx = new AudioContextClass();
+    } catch (err) {
+      console.error('Ошибка при создании AudioContext:', err);
+      return null;
+    }
   }
   if (ctx.state === 'suspended') {
     try {
       await ctx.resume();
     } catch (err) {
-      console.warn('Не удалось возобновить AudioContext', err);
+      console.error('Ошибка при возобновлении AudioContext:', err);
       return null;
     }
   }
@@ -59,10 +64,16 @@ function createToneEnvelope(audioCtx: AudioContext, freq: number, volume = 0.3) 
  */
 export async function startNote(note: string): Promise<PlayingNote | null> {
   const freq = NOTE_FREQUENCIES[note];
-  if (!freq) return null;
+  if (!freq) {
+    console.warn(`Нота "${note}" не найдена`);
+    return null;
+  }
 
   const audioCtx = await ensureAudioContext();
-  if (!audioCtx) return null;
+  if (!audioCtx) {
+    console.error('Не удалось инициализировать AudioContext для начала воспроизведения ноты');
+    return null;
+  }
 
   const { oscillator, gainNode, now } = createToneEnvelope(audioCtx, freq, 0.3);
   oscillator.start(now);
@@ -89,18 +100,28 @@ export async function startNote(note: string): Promise<PlayingNote | null> {
 /** Проигрывает ноту заданной длительности (по умолчанию 0.4 с) */
 export async function playNote(note: string, durationSec = 0.4): Promise<void> {
   const freq = NOTE_FREQUENCIES[note];
-  if (!freq) return;
+  if (!freq) {
+    console.warn(`Нота "${note}" не найдена`);
+    return;
+  }
 
   const audioCtx = await ensureAudioContext();
-  if (!audioCtx) return;
+  if (!audioCtx) {
+    console.error('Не удалось инициализировать AudioContext для воспроизведения ноты');
+    return;
+  }
 
-  const { oscillator, gainNode, now } = createToneEnvelope(audioCtx, freq, 0.3);
-  oscillator.start(now);
+  try {
+    const { oscillator, gainNode, now } = createToneEnvelope(audioCtx, freq, 0.3);
+    oscillator.start(now);
 
-  const releaseTime = Math.max(durationSec, 0.06);
-  gainNode.gain.setValueAtTime(Math.max(gainNode.gain.value, 0.0001), now);
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, now + releaseTime);
-  oscillator.stop(now + releaseTime + 0.02);
+    const releaseTime = Math.max(durationSec, 0.06);
+    gainNode.gain.setValueAtTime(Math.max(gainNode.gain.value, 0.0001), now);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + releaseTime);
+    oscillator.stop(now + releaseTime + 0.02);
+  } catch (err) {
+    console.error('Ошибка при воспроизведении ноты:', err);
+  }
 }
 
 
@@ -113,24 +134,38 @@ export async function playSequence(
   { noteDurationSec = 0.5, gapSec = 0.15 }: { noteDurationSec?: number; gapSec?: number } = {},
 ): Promise<void> {
   const audioCtx = await ensureAudioContext();
-  if (!audioCtx) return;
+  if (!audioCtx) {
+    console.error('Не удалось инициализировать AudioContext для воспроизведения последовательности');
+    return;
+  }
 
-  let t = audioCtx.currentTime;
-  for (const note of notes) {
-    const freq = NOTE_FREQUENCIES[note];
-    if (!freq) continue;
+  try {
+    let t = audioCtx.currentTime;
+    for (const note of notes) {
+      const freq = NOTE_FREQUENCIES[note];
+      if (!freq) {
+        console.warn(`Нота "${note}" не найдена при воспроизведении последовательности`);
+        continue;
+      }
 
-    const oscillator = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+      try {
+        const oscillator = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
 
-    oscillator.type = 'sine';
-    oscillator.frequency.value = freq;
-    gain.gain.value = 0.3;
-    oscillator.connect(gain);
-    gain.connect(audioCtx.destination);
-    oscillator.start(t);
-    oscillator.stop(t + noteDurationSec);
-    t += noteDurationSec + gapSec;
+        oscillator.type = 'sine';
+        oscillator.frequency.value = freq;
+        gain.gain.value = 0.3;
+        oscillator.connect(gain);
+        gain.connect(audioCtx.destination);
+        oscillator.start(t);
+        oscillator.stop(t + noteDurationSec);
+        t += noteDurationSec + gapSec;
+      } catch (err) {
+        console.error(`Ошибка при воспроизведении ноты "${note}":`, err);
+      }
+    }
+  } catch (err) {
+    console.error('Ошибка при воспроизведении последовательности:', err);
   }
 }
 
@@ -147,6 +182,7 @@ export function createIntervalPlayer(
 
   const play = (lowerNote: string, upperNote: string) => {
     if (typeof window === 'undefined') {
+      console.error('Window объект не доступен');
       return;
     }
 
@@ -155,11 +191,21 @@ export function createIntervalPlayer(
       timeoutId = null;
     }
 
-    notePlayer(lowerNote);
-    timeoutId = window.setTimeout(() => {
-      notePlayer(upperNote);
+    try {
+      notePlayer(lowerNote);
+      timeoutId = window.setTimeout(() => {
+        try {
+          notePlayer(upperNote);
+        } catch (err) {
+          console.error('Ошибка при воспроизведении верхней ноты интервала:', err);
+        } finally {
+          timeoutId = null;
+        }
+      }, delayMs);
+    } catch (err) {
+      console.error('Ошибка при воспроизведении интервала:', err);
       timeoutId = null;
-    }, delayMs);
+    }
   };
 
   const cancel = () => {

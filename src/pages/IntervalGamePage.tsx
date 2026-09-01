@@ -25,7 +25,7 @@ export default function IntervalGamePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
-    game.initGame();
+    game.initGame({ autoPlay: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -64,7 +64,7 @@ export default function IntervalGamePage() {
             <button
               className={styles.hintButton}
               onClick={game.requestHint}
-              disabled={game.hintsLeft === 0 || game.lastResult !== null || !game.leavesVisible}
+              disabled={game.hintsLeft === 0 || game.lastResult !== null}
               title={game.hintsLeft === 0 ? 'Подсказки закончились' : 'Показать название интервала'}
             >
               💡 {game.hintsLeft > 0 ? game.hintsLeft : '0'}
