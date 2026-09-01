@@ -1,3 +1,4 @@
+// src/components/TwoNoteStaff.tsx
 import styles from './TwoNoteStaff.module.css';
 import skripKey from '../assets/skrip_key.webp';
 import leavesImage from '../assets/lists.webp';
@@ -16,6 +17,7 @@ export default function TwoNoteStaff({
   visible,
   onClear,
 }: TwoNoteStaffProps) {
+  // Получаем базовые имена (без диезов) для позиционирования
   const { base: lowerBase } = parseNote(lowerNote);
   const { base: upperBase } = parseNote(upperNote);
   const yLower = STAFF_POSITIONS[lowerBase];
@@ -28,10 +30,11 @@ export default function TwoNoteStaff({
   const lineY = [20, 35, 50, 65, 80];
   const noteRadius = 8;
 
-  const needsLedgerLower = yLower < 20 || yLower > 80;
-  const needsLedgerUpper = yUpper < 20 || yUpper > 80;
+  // Единый список нот, которым нужна добавочная линия (базовые имена)
+  const ledgerNotes = ['C4', 'G5'];
+  const needsLedgerLower = ledgerNotes.includes(lowerBase);
+  const needsLedgerUpper = ledgerNotes.includes(upperBase);
 
-  // Позиции нот – всегда две, даже при приме
   const xLower = 85;
   const xUpper = 145;
 
@@ -44,7 +47,6 @@ export default function TwoNoteStaff({
           height="100%"
           className={styles.svg}
         >
-          {/* Линии стана */}
           {lineY.map((yPos) => (
             <line
               key={yPos}
@@ -57,10 +59,9 @@ export default function TwoNoteStaff({
             />
           ))}
 
-          {/* Скрипичный ключ */}
           <image href={skripKey} x="15" y="12" width="50" height="80" preserveAspectRatio="xMidYMid meet" />
 
-          {/* Добавочные линии для нижней ноты */}
+          {/* Добавочная линия для нижней ноты, если нужно */}
           {needsLedgerLower && (
             <line
               x1={xLower - 20}
@@ -71,7 +72,7 @@ export default function TwoNoteStaff({
               strokeWidth="1.5"
             />
           )}
-          {/* Добавочные линии для верхней ноты */}
+          {/* Добавочная линия для верхней ноты, если нужно */}
           {needsLedgerUpper && (
             <line
               x1={xUpper - 20}
@@ -93,7 +94,7 @@ export default function TwoNoteStaff({
             stroke="#1a1a1a"
             strokeWidth="1"
           />
-          {/* Верхняя нота – теперь всегда рисуется */}
+          {/* Верхняя нота */}
           <ellipse
             cx={xUpper}
             cy={yUpper}
@@ -105,14 +106,12 @@ export default function TwoNoteStaff({
           />
         </svg>
 
-        {/* Слой листьев */}
         {visible && (
           <div className={styles.leavesLayer}>
             <img src={leavesImage} alt="листья" className={styles.leavesImage} />
           </div>
         )}
 
-        {/* Кнопка очистки */}
         <button className={styles.clearButton} onClick={onClear} title="Убрать листья">
           🧹
         </button>
