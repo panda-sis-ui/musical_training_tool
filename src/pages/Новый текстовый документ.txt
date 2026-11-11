@@ -1,0 +1,12 @@
+"MusicGame" is an open‑source web game that helps beginners learn to recognise musical notes by ear. It combines a virtual piano, a hidden note on a staff, and a cute fox mascot that gives visual feedback. The game is built with React, TypeScript, and the Web Audio API, and it runs entirely in the browser – no installation or special hardware required.
+Although the project is relatively new, it already has a small but growing user base among music teachers and self‑taught students. It fills a gap in free, accessible ear‑training tools that are both engaging and pedagogically sound. The code is well‑structured and serves as a learning resource for junior developers interested in interactive audio applications.
+I am actively adding new features (levels, hints, more games) and plan to promote it in music education communities. With wider adoption, it could become a go‑to tool for schools and individual learners worldwide.
+
+With Claude Max, I would significantly accelerate the development of MusicGame in several ways:
+
+1. Code quality & testing – Claude can help write comprehensive unit and integration tests, ensuring the app is robust and bug‑free and especially as I add new features like multiple game modes.
+2. Documentation & onboarding – I would use Claude to generate clear, beginner‑friendly documentation and contribute guides so that other open‑source contributors can easily understand and extend the project.
+3. Educational content – Claude can help create interactive music theory lessons, generate exercises, and even provide real‑time explanations for users who are learning to read notes.
+4. AI‑assisted gameplay – In the future, I plan to integrate a chatbot or a smart assistant within the game to give personalised feedback to players. Claude’s capabilities would make this possible.
+
+The project is hosted on GitHub with an MIT license. Our roadmap includes expanding the note range, adding interval and chord recognition games, and making the interface fully responsive for mobile devices. We also plan to create a companion website with teaching resources.   In addition, we are developing a companion project – "Teacher Simulator" – an interactive tool designed to prepare educators for conflict situations in the workplace through realistic scenario‑based training.  Claude would be instrumental in helping us achieve these goals while keeping all projects open and free for everyone.

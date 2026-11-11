@@ -1,0 +1,169 @@
+/* Контейнер пианино – тёмная подложка */
+.pianoContainer {
+  position: relative;
+  width: 100%;
+  max-width: 100%;            /* теперь не ограничиваем 900px */
+  margin: 0 auto;
+  user-select: none;
+  border-radius: 12px;
+  background: #2c3e50;
+  padding: 5px 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  height: 100%;               /* занимает всю высоту родителя */
+  min-height: 180px; 
+}
+
+/* Ряд белых клавиш */
+.whiteKeys {
+  display: flex;
+  width: 100%;
+  height: 100%; 
+  min-height: 120px; 
+  position: relative;
+}
+
+/* Одиночная белая клавиша */
+.whiteKey {
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(to bottom, #f9f9f9 0%, #e0e0e0 100%);
+  border: 1px solid #aaa;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 
+    inset 0 -4px 6px rgba(0,0,0,0.2),
+    0 4px 8px rgba(0,0,0,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  transition: all 0.08s ease;
+  font-size: 1.2vw;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.whiteKey:hover {
+  background: linear-gradient(to bottom, #ffffff 0%, #e8e8e8 100%);
+}
+
+/* Контейнер чёрных клавиш (абсолютное позиционирование поверх белых) */
+.blackKeys {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.blackKey {
+  position: absolute;
+  top: 0;
+  height: 60%;
+  background: linear-gradient(to bottom, #3a3a3a 0%, #1a1a1a 100%);
+  border: 1px solid #111;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 
+    inset 0 -4px 6px rgba(0,0,0,0.6),
+    0 4px 8px rgba(0,0,0,0.5);
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  transition: all 0.08s ease;
+  color: #fff;
+  font-size: 0.9vw;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.blackKey:hover {
+  background: linear-gradient(to bottom, #4a4a4a 0%, #2a2a2a 100%);
+}
+
+/* Активное состояние (синяя подсветка) */
+.whiteKey.activeWhite {
+  background: linear-gradient(to bottom, #c0d8ff 0%, #8ab0f0 100%);
+  box-shadow: 
+    inset 0 4px 6px rgba(0,0,0,0.3),
+    0 0 4px rgba(0,0,0,0.2);
+  transform: translateY(2px);
+}
+
+.blackKey.activeBlack {
+  background: linear-gradient(to bottom, #6a8cff 0%, #3a5cbf 100%);
+  box-shadow: 
+    inset 0 4px 6px rgba(0,0,0,0.6),
+    0 0 4px rgba(0,0,0,0.3);
+  transform: translateY(2px);
+}
+
+/* Подписи нот – общие настройки */
+.noteLabel {
+  font-weight: bold;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  font-size: clamp(14px, 1.8vw, 30px);
+}
+
+.whiteKey .noteLabel {
+  color: #D45D2B;
+  text-shadow: 0 1px 0 #D45D2B;
+  font-size: clamp(18px, 2vw, 40px);
+}
+
+.blackKey .noteLabel {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  font-size: clamp(12px, 1vw, 22px);
+}
+
+/* Подсветка правильного/неправильного ответа */
+.whiteKey.correct {
+  background: #90EE90 !important;
+}
+.whiteKey.wrong {
+  background: #FF6B6B !important;
+}
+.blackKey.correct {
+  background: #2E8B57 !important;
+}
+.blackKey.wrong {
+  background: #B22222 !important;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+  .pianoContainer {
+    padding: 3px 4px;
+  }
+  .whiteKeys {
+    min-height: 120px;
+  }
+  .noteLabel {
+    font-size: clamp(10px, 1.2vw, 16px) !important;
+  }
+  .whiteKey .noteLabel {
+    font-size: clamp(12px, 1.6vw, 20px) !important;
+  }
+  .blackKey .noteLabel {
+    font-size: clamp(8px, 1vw, 14px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .whiteKeys {
+    min-height: 100px;
+  }
+  .pianoContainer {
+    padding: 2px 2px;
+  }
+}

@@ -1,0 +1,58 @@
+/* src/components/IntervalButtons.module.css */
+
+.buttonsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  padding: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.button {
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-family: 'Nunito', sans-serif;
+  background: #f0f4f8;
+  border: 2px solid #2c3e50;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+.button:hover:not(:disabled) {
+  background: #dce4ec;
+  transform: scale(1.02);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button.correct {
+  background: #90EE90 !important;
+  border-color: #2e8b57;
+}
+
+.button.wrong {
+  background: #FF6B6B !important;
+  border-color: #b22222;
+}
+
+@media (max-width: 600px) {
+  .buttonsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 6px;
+  }
+  .button {
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+}

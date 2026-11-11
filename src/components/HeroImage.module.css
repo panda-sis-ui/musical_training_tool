@@ -1,0 +1,154 @@
+.heroContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 10px;
+  cursor: pointer; 
+  transition: transform 0.1s;  
+}
+.heroContainer:active {
+  transform: scale(0.98);    /* эффект нажатия на весь блок */
+}
+
+.imageWrapper {
+  position: relative;
+  width: 200px; 
+  height: 200px;
+  flex-shrink: 0;
+}
+
+/* Круглая картинка */
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #2c3e50;
+}
+
+/* SVG – абсолютно поверх картинки, занимает ту же область */
+.arcSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* чтобы клики проходили на картинку, если надо */
+}
+
+/* Текст по дуге – настройки шрифта */
+.arcText {
+  font-family: 'Nunito', sans-serif;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px rgba(255,255,255,0.8);
+}
+
+/* ----- Облако мысли (комикс) ----- */
+.cloud {
+  position: relative;
+  background: #ffffff;
+  border-radius: 50px;
+  padding: 10px 20px;
+  min-width: 80px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 2px solid #2c3e50;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-size: 2.8rem;
+  user-select: none;
+}
+.hintText {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #2c3e50;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.cloud:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.cloud:active {
+  transform: scale(0.95);
+}
+
+.cloudTail {
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-right: 20px solid #ffffff;
+  filter: drop-shadow(-2px 0 2px rgba(0,0,0,0.1));
+}
+
+.cloudTail::after {
+  content: '';
+  position: absolute;
+  top: -17px;
+  left: 2px;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-right: 22px solid #2c3e50;
+  z-index: -1;
+}
+
+.cloudText {
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+/* Существующие стили оставляем, добавляем медиа-запросы */
+
+@media (max-width: 600px) {
+  .heroContainer {
+    gap: 10px;
+    padding: 5px;
+  }
+
+  .imageWrapper {
+    width: 120px;
+    height: 120px;
+  }
+
+  .cloud {
+    min-width: 50px;
+    min-height: 50px;
+    padding: 6px 12px;
+    font-size: 1.8rem;
+    border-radius: 30px;
+  }
+
+  .cloudText {
+    font-size: 1.8rem;
+  }
+
+  .arcText {
+    font-size: 16px !important; /* уменьшаем текст по дуге */
+  }
+}
+
+@media (max-width: 400px) {
+  .imageWrapper {
+    width: 90px;
+    height: 90px;
+  }
+  .cloud {
+    font-size: 1.4rem;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 4px 8px;
+  }
+}
